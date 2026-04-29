@@ -35,7 +35,7 @@ export default function CasesPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "var(--color-bg-dark)",
+          background: "var(--color-hero-bg)",
           overflow: "hidden",
           paddingTop: 44,
         }}

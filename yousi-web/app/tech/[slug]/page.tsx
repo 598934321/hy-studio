@@ -56,7 +56,7 @@ function HeroSection({ service }: { service: Service }) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        background: "var(--color-bg-dark)",
+        background: "var(--color-hero-bg)",
         overflow: "hidden",
         paddingTop: 44,
       }}

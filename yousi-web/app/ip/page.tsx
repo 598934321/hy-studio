@@ -108,7 +108,7 @@ function HeroSection() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--color-bg-dark)",
+        background: "var(--color-hero-bg)",
         overflow: "hidden",
         paddingTop: 44,
       }}
@@ -217,7 +217,7 @@ function HeroSection() {
           left: 0,
           right: 0,
           height: "40%",
-          background: "linear-gradient(to top, rgba(29,29,31,0.9) 0%, transparent 100%)",
+          background: "linear-gradient(to top, var(--color-hero-bg) 0%, transparent 100%)",
           zIndex: 2,
           pointerEvents: "none",
         }}
@@ -401,7 +401,7 @@ function HighlightsSection() {
     <section
       style={{
         padding: "var(--section-padding-y) var(--space-6)",
-        background: "var(--color-bg-dark)",
+        background: "var(--color-hero-bg)",
       }}
     >
       <div

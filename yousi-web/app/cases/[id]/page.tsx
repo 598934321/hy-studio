@@ -116,7 +116,7 @@ export default function CaseDetailPage({
       {/* Hero Section */}
       <section
         style={{
-          background: "var(--color-bg-dark)",
+          background: "var(--color-hero-bg)",
           padding: "var(--space-16) var(--space-6) var(--space-20)",
         }}
       >

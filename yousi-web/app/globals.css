@@ -91,6 +91,9 @@
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
   --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
 
+  /* === 固定深色（不随深色模式反转） === */
+  --color-hero-bg: #1D1D1F;
+
   /* === 动画 === */
   --duration-fast: 0.2s;
   --duration-normal: 0.3s;
