@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import RevealOnScroll from "@/components/RevealOnScroll";
@@ -241,14 +242,12 @@ function HeroSection() {
           zIndex: 0,
         }}
       >
-        <img
+        <Image
           src="/images/hero/services-hero.webp"
           alt="品牌服务"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
+          fill
+          sizes="100vw"
+          style={{ objectFit: "cover" }}
         />
       </div>
     </section>
@@ -375,14 +374,12 @@ function FeatureSection({
                 overflow: "hidden",
               }}
             >
-              <img
+              <Image
                 src={service.heroImage}
                 alt={service.name}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                style={{ objectFit: "cover" }}
               />
             </div>
           </RevealOnScroll>
@@ -489,14 +486,12 @@ function FullBleedImage({ src, alt }: { src: string; alt: string }) {
         overflow: "hidden",
       }}
     >
-      <img
+      <Image
         src={src}
         alt={alt}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
+        fill
+        sizes="100vw"
+        style={{ objectFit: "cover" }}
       />
     </section>
   );

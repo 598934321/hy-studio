@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import RevealOnScroll from "@/components/RevealOnScroll";
@@ -190,14 +191,12 @@ export default function CasesPage() {
                         overflow: "hidden",
                       }}
                     >
-                      <img
+                      <Image
                         src={caseItem.coverImage}
                         alt={caseItem.title}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        style={{ objectFit: "cover" }}
                       />
                     </div>
 

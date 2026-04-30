@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -36,14 +37,12 @@ function CaseImage({
         ...style,
       }}
     >
-      <img
+      <Image
         src={src}
         alt={alt}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
+        style={{ objectFit: "cover" }}
       />
     </div>
   );

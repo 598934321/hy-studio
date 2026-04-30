@@ -399,9 +399,6 @@ export default function LoginPage() {
                 {adminLoading ? "登录中..." : "管理员登录"}
               </button>
 
-              <p style={{ fontSize: "var(--text-caption)", color: "var(--color-text-secondary)", textAlign: "center" }}>
-                默认账号：admin / admin123
-              </p>
             </form>
           )}
 

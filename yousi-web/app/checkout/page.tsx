@@ -1,22 +1,54 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useBagStore } from "@/store/bagStore";
-
-const placeholderItems = [
-  { id: "1", type: "service" as const, name: "品牌视觉设计", price: 12800, quantity: 1 },
-  { id: "2", type: "package" as const, name: "空间设计套餐", price: 35800, quantity: 1 },
-];
+import { ordersApi } from "@/lib/api";
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const items = useBagStore((s) => s.items);
   const total = useBagStore((s) => s.total);
-  const displayItems = items.length > 0 ? items : placeholderItems;
-  const displayTotal = items.length > 0 ? total() : placeholderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const clearBag = useBagStore((s) => s.clearBag);
 
+  const [customer, setCustomer] = useState("");
+  const [kindergarten, setKindergarten] = useState("");
+  const [phone, setPhone] = useState("");
+  const [wechat, setWechat] = useState("");
+  const [notes, setNotes] = useState("");
   const [payment, setPayment] = useState("wechat");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const displayTotal = total();
+
+  const handleSubmit = async () => {
+    setError("");
+    if (!customer.trim()) { setError("请输入姓名"); return; }
+    if (!phone.trim()) { setError("请输入联系电话"); return; }
+    if (items.length === 0) { setError("购物车为空"); return; }
+
+    setSubmitting(true);
+    try {
+      const res = await ordersApi.create({
+        customer: customer.trim(),
+        phone: phone.trim(),
+        kindergarten: kindergarten.trim() || undefined,
+        wechat: wechat.trim() || undefined,
+        items: items.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity, type: i.type })),
+        total: displayTotal,
+        notes: notes.trim() || undefined,
+      });
+      clearBag();
+      router.push(`/checkout/success?orderNo=${res.orderNo}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "提交失败，请重试");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -64,19 +96,19 @@ export default function CheckoutPage() {
             <form style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
               <div>
                 <label style={labelStyle}>姓名</label>
-                <input type="text" placeholder="请输入您的姓名" style={inputStyle} />
+                <input type="text" placeholder="请输入您的姓名" style={inputStyle} value={customer} onChange={(e) => setCustomer(e.target.value)} />
               </div>
               <div>
                 <label style={labelStyle}>幼儿园名称</label>
-                <input type="text" placeholder="请输入幼儿园全称" style={inputStyle} />
+                <input type="text" placeholder="请输入幼儿园全称" style={inputStyle} value={kindergarten} onChange={(e) => setKindergarten(e.target.value)} />
               </div>
               <div>
                 <label style={labelStyle}>联系电话</label>
-                <input type="tel" placeholder="请输入手机号码" style={inputStyle} />
+                <input type="tel" placeholder="请输入手机号码" style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
               <div>
                 <label style={labelStyle}>微信号</label>
-                <input type="text" placeholder="请输入微信号（选填）" style={inputStyle} />
+                <input type="text" placeholder="请输入微信号（选填）" style={inputStyle} value={wechat} onChange={(e) => setWechat(e.target.value)} />
               </div>
               <div>
                 <label style={labelStyle}>留言备注</label>
@@ -84,6 +116,8 @@ export default function CheckoutPage() {
                   placeholder="如有特殊需求请在此说明"
                   rows={4}
                   style={{ ...inputStyle, resize: "vertical" as const }}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                 />
               </div>
 
@@ -130,25 +164,31 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {error && (
+                <p style={{ color: "var(--color-error, #ff3b30)", fontSize: "var(--text-footnote)" }}>{error}</p>
+              )}
+
               <button
                 type="button"
+                disabled={submitting}
                 style={{
                   marginTop: "var(--space-6)",
                   padding: "var(--space-4) var(--space-8)",
-                  background: "var(--color-cta)",
+                  background: submitting ? "var(--color-text-tertiary)" : "var(--color-cta)",
                   color: "#fff",
                   border: "none",
                   borderRadius: "var(--radius-md)",
                   fontSize: "var(--text-body)",
                   fontWeight: "var(--weight-semibold)",
-                  cursor: "pointer",
+                  cursor: submitting ? "not-allowed" : "pointer",
                   transition: "background var(--duration-fast) var(--easing-default)",
                   fontFamily: "var(--font-text)",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-cta-hover)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--color-cta)")}
+                onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.background = "var(--color-cta-hover)"; }}
+                onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.background = "var(--color-cta)"; }}
+                onClick={handleSubmit}
               >
-                提交订单
+                {submitting ? "提交中..." : "提交订单"}
               </button>
             </form>
           </section>
@@ -177,30 +217,34 @@ export default function CheckoutPage() {
             </h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-              {displayItems.map((item) => (
-                <div
-                  key={item.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "var(--space-3) 0",
-                    borderBottom: "1px solid var(--color-divider)",
-                  }}
-                >
-                  <div>
-                    <p style={{ fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                      {item.name}
-                    </p>
-                    <p style={{ fontSize: "var(--text-footnote)", color: "var(--color-text-secondary)", marginTop: "var(--space-1)" }}>
-                      x{item.quantity}
-                    </p>
+              {items.length === 0 ? (
+                <p style={{ fontSize: "var(--text-footnote)", color: "var(--color-text-secondary)" }}>购物车为空</p>
+              ) : (
+                items.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "var(--space-3) 0",
+                      borderBottom: "1px solid var(--color-divider)",
+                    }}
+                  >
+                    <div>
+                      <p style={{ fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                        {item.name}
+                      </p>
+                      <p style={{ fontSize: "var(--text-footnote)", color: "var(--color-text-secondary)", marginTop: "var(--space-1)" }}>
+                        x{item.quantity}
+                      </p>
+                    </div>
+                    <span style={{ fontSize: "var(--text-body)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)" }}>
+                      {"¥"}{(item.price * item.quantity).toLocaleString()}
+                    </span>
                   </div>
-                  <span style={{ fontSize: "var(--text-body)", fontWeight: "var(--weight-semibold)", color: "var(--color-text-primary)" }}>
-                    {"¥"}{(item.price * item.quantity).toLocaleString()}
-                  </span>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             <div

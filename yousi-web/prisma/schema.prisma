@@ -93,15 +93,18 @@ model Inquiry {
 }
 
 model Order {
-  id        String   @id @default(cuid())
-  orderNo   String   @unique
-  customer  String
-  phone     String
-  items     Json
-  total     Float
-  status    String   @default("pending")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  orderNo      String   @unique
+  customer     String
+  phone        String
+  kindergarten String?
+  wechat       String?
+  items        Json
+  total        Float
+  notes        String?
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([status])
 }

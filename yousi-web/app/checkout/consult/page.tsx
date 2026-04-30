@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { inquiriesApi } from "@/lib/api";
 
 const services = [
   "品牌视觉设计",
@@ -23,13 +24,116 @@ const budgetRanges = [
 ];
 
 export default function ConsultPage() {
+  const [name, setName] = useState("");
+  const [kindergarten, setKindergarten] = useState("");
+  const [phone, setPhone] = useState("");
+  const [wechat, setWechat] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [budget, setBudget] = useState(budgetRanges[0]);
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const toggleService = (service: string) => {
     setSelectedServices((prev) =>
       prev.includes(service) ? prev.filter((s) => s !== service) : [...prev, service]
     );
   };
+
+  const handleSubmit = async () => {
+    setError("");
+    if (!name.trim()) { setError("请输入姓名"); return; }
+    if (!kindergarten.trim()) { setError("请输入幼儿园名称"); return; }
+    if (!phone.trim()) { setError("请输入联系电话"); return; }
+    if (selectedServices.length === 0) { setError("请选择至少一项服务"); return; }
+
+    setSubmitting(true);
+    try {
+      const parts = [];
+      if (budget !== budgetRanges[0]) parts.push(`预算：${budget}`);
+      if (message.trim()) parts.push(message.trim());
+      const fullMessage = parts.join("；");
+
+      await inquiriesApi.create({
+        name: name.trim(),
+        kindergarten: kindergarten.trim(),
+        phone: phone.trim(),
+        wechat: wechat.trim() || undefined,
+        service: selectedServices.join("、"),
+        message: fullMessage || undefined,
+      });
+      setSuccess(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "提交失败，请重试");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <>
+        <Header />
+        <main
+          style={{
+            background: "var(--color-bg-secondary)",
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingTop: "var(--space-20)",
+            paddingBottom: "var(--space-20)",
+          }}
+        >
+          <section
+            style={{
+              background: "var(--color-bg)",
+              borderRadius: "var(--radius-lg)",
+              padding: "var(--space-16) var(--space-8)",
+              boxShadow: "var(--shadow-card)",
+              textAlign: "center",
+              maxWidth: "520px",
+              width: "100%",
+              margin: "0 var(--content-padding-x)",
+            }}
+          >
+            <div
+              style={{
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                background: "var(--color-success)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto var(--space-8)",
+              }}
+            >
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <path d="M10 20L17 27L30 13" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "var(--text-subtitle)",
+                fontWeight: "var(--weight-semibold)",
+                color: "var(--color-text-primary)",
+                marginBottom: "var(--space-4)",
+              }}
+            >
+              咨询提交成功！
+            </h1>
+            <p style={{ fontSize: "var(--text-body)", color: "var(--color-text-secondary)", lineHeight: "var(--leading-relaxed)" }}>
+              我们的顾问将尽快与您联系
+            </p>
+          </section>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -82,22 +186,22 @@ export default function ConsultPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-5)" }}>
                 <div>
                   <label style={labelStyle}>姓名</label>
-                  <input type="text" placeholder="请输入您的姓名" style={inputStyle} />
+                  <input type="text" placeholder="请输入您的姓名" style={inputStyle} value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
                 <div>
                   <label style={labelStyle}>幼儿园名称</label>
-                  <input type="text" placeholder="请输入幼儿园全称" style={inputStyle} />
+                  <input type="text" placeholder="请输入幼儿园全称" style={inputStyle} value={kindergarten} onChange={(e) => setKindergarten(e.target.value)} />
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-5)" }}>
                 <div>
                   <label style={labelStyle}>联系电话</label>
-                  <input type="tel" placeholder="请输入手机号码" style={inputStyle} />
+                  <input type="tel" placeholder="请输入手机号码" style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </div>
                 <div>
                   <label style={labelStyle}>微信号</label>
-                  <input type="text" placeholder="请输入微信号（选填）" style={inputStyle} />
+                  <input type="text" placeholder="请输入微信号（选填）" style={inputStyle} value={wechat} onChange={(e) => setWechat(e.target.value)} />
                 </div>
               </div>
 
@@ -168,7 +272,7 @@ export default function ConsultPage() {
               {/* Budget Range */}
               <div>
                 <label style={labelStyle}>预算范围</label>
-                <select style={{ ...inputStyle, cursor: "pointer" }}>
+                <select style={{ ...inputStyle, cursor: "pointer" }} value={budget} onChange={(e) => setBudget(e.target.value)}>
                   {budgetRanges.map((range) => (
                     <option key={range} value={range}>
                       {range}
@@ -184,28 +288,36 @@ export default function ConsultPage() {
                   placeholder="请描述您的具体需求或期望"
                   rows={4}
                   style={{ ...inputStyle, resize: "vertical" as const }}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
 
+              {error && (
+                <p style={{ color: "var(--color-error, #ff3b30)", fontSize: "var(--text-footnote)" }}>{error}</p>
+              )}
+
               <button
                 type="button"
+                disabled={submitting}
                 style={{
                   marginTop: "var(--space-4)",
                   padding: "var(--space-4) var(--space-8)",
-                  background: "var(--color-cta)",
+                  background: submitting ? "var(--color-text-tertiary)" : "var(--color-cta)",
                   color: "#fff",
                   border: "none",
                   borderRadius: "var(--radius-md)",
                   fontSize: "var(--text-body)",
                   fontWeight: "var(--weight-semibold)",
-                  cursor: "pointer",
+                  cursor: submitting ? "not-allowed" : "pointer",
                   transition: "background var(--duration-fast) var(--easing-default)",
                   fontFamily: "var(--font-text)",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-cta-hover)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--color-cta)")}
+                onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.background = "var(--color-cta-hover)"; }}
+                onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.background = "var(--color-cta)"; }}
+                onClick={handleSubmit}
               >
-                提交咨询
+                {submitting ? "提交中..." : "提交咨询"}
               </button>
             </form>
           </section>

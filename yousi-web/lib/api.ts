@@ -82,9 +82,22 @@ export const inquiriesApi = {
 export const ordersApi = {
   list: (status?: string) =>
     request<Record<string, unknown>[]>(`/api/orders${status ? `?status=${status}` : ""}`),
+  create: (data: { customer: string; phone: string; kindergarten?: string; wechat?: string; items: unknown[]; total: number; notes?: string }) =>
+    request<{ success: boolean; orderNo: string; id: string }>("/api/orders", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
   updateStatus: (id: string, status: string) =>
     request<Record<string, unknown>>(`/api/orders/${id}`, {
       method: "PATCH",
       body: JSON.stringify({ status }),
     }),
+};
+
+// Account (public, query by phone)
+export const accountApi = {
+  getOrders: (phone: string) =>
+    request<Record<string, unknown>[]>(`/api/account/orders?phone=${encodeURIComponent(phone)}`),
+  getInquiries: (phone: string) =>
+    request<Record<string, unknown>[]>(`/api/account/inquiries?phone=${encodeURIComponent(phone)}`),
 };
