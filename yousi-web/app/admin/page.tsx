@@ -1,73 +1,85 @@
 "use client";
 
-const STATS = [
-  { label: "今日订单", value: "12", change: "+3", color: "var(--color-cta)" },
-  { label: "本月收入", value: "¥128,500", change: "+12%", color: "var(--color-success)" },
-  { label: "待处理咨询", value: "5", change: "-2", color: "var(--color-warning)" },
-  { label: "活跃服务", value: "8", change: "+1", color: "var(--color-cta)" },
-];
+import { useState, useEffect } from "react";
+import { ordersApi, inquiriesApi } from "@/lib/api";
 
-const RECENT_ORDERS = [
-  { id: "ORD-20260430-001", customer: "张园长", item: "整园环创设计", total: "¥35,000", status: "进行中", date: "2026-04-30" },
-  { id: "ORD-20260429-002", customer: "李园长", item: "品牌VI设计", total: "¥18,000", status: "已完成", date: "2026-04-29" },
-  { id: "ORD-20260428-003", customer: "王主任", item: "空间导视设计", total: "¥12,500", status: "待确认", date: "2026-04-28" },
-  { id: "ORD-20260427-004", customer: "赵园长", item: "活动策划设计", total: "¥8,000", status: "进行中", date: "2026-04-27" },
-  { id: "ORD-20260426-005", customer: "刘园长", item: "整园环创设计", total: "¥42,000", status: "已完成", date: "2026-04-26" },
-];
-
-const RECENT_INQUIRIES = [
-  { name: "陈园长", subject: "环创设计咨询", time: "10分钟前", status: "未回复" },
-  { name: "孙主任", subject: "品牌升级咨询", time: "30分钟前", status: "未回复" },
-  { name: "周园长", subject: "VI设计报价", time: "1小时前", status: "已回复" },
-  { name: "吴园长", subject: "导视系统咨询", time: "2小时前", status: "已回复" },
-  { name: "郑主任", subject: "活动策划咨询", time: "3小时前", status: "已回复" },
-];
-
-const thStyle: React.CSSProperties = {
-  textAlign: "left",
-  padding: "12px 16px",
-  fontSize: "var(--text-footnote)",
-  fontWeight: "var(--weight-medium)",
-  color: "var(--color-text-secondary)",
-  borderBottom: "1px solid var(--color-border-light)",
-};
-
-const tdStyle: React.CSSProperties = {
-  padding: "12px 16px",
-  fontSize: "var(--text-footnote)",
-  color: "var(--color-text-primary)",
-  borderBottom: "1px solid var(--color-border-light)",
-};
-
-function StatusBadge({ status }: { status: string }) {
-  const colorMap: Record<string, string> = {
-    "已完成": "var(--color-success)",
-    "进行中": "var(--color-cta)",
-    "待确认": "var(--color-warning)",
-    "已回复": "var(--color-success)",
-    "未回复": "var(--color-error)",
-  };
-
-  return (
-    <span
-      style={{
-        display: "inline-block",
-        padding: "2px 10px",
-        borderRadius: "var(--radius-pill)",
-        fontSize: "var(--text-caption)",
-        fontWeight: "var(--weight-medium)",
-        color: colorMap[status] || "var(--color-text-secondary)",
-        background: colorMap[status]
-          ? `color-mix(in srgb, ${colorMap[status]} 12%, transparent)`
-          : "var(--color-bg-secondary)",
-      }}
-    >
-      {status}
-    </span>
-  );
+interface Order {
+  id: string;
+  orderNo: string;
+  customer: string;
+  total: number;
+  status: string;
 }
 
+interface Inquiry {
+  id: string;
+  name: string;
+  service: string;
+  status: string;
+  createdAt: string;
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: "待确认",
+  in_progress: "进行中",
+  completed: "已完成",
+  cancelled: "已取消",
+};
+
+const INQUIRY_STATUS_LABELS: Record<string, string> = {
+  pending: "未回复",
+  contacted: "已联系",
+  converted: "已转化",
+};
+
 export function AdminDashboard() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      ordersApi.list().catch(() => []),
+      inquiriesApi.list().catch(() => []),
+    ]).then(([o, i]) => {
+      setOrders(o as unknown as Order[]);
+      setInquiries(i as unknown as Inquiry[]);
+      setLoading(false);
+    });
+  }, []);
+
+  const stats = [
+    { label: "总订单", value: String(orders.length), color: "var(--color-cta)" },
+    { label: "待处理", value: String(orders.filter((o) => o.status === "pending").length), color: "var(--color-warning)" },
+    { label: "待处理咨询", value: String(inquiries.filter((i) => i.status === "pending").length), color: "var(--color-warning)" },
+    { label: "已完成", value: String(orders.filter((o) => o.status === "completed").length), color: "var(--color-success)" },
+  ];
+
+  const thStyle: React.CSSProperties = {
+    textAlign: "left",
+    padding: "12px 16px",
+    fontSize: "var(--text-footnote)",
+    fontWeight: "var(--weight-medium)",
+    color: "var(--color-text-secondary)",
+    borderBottom: "1px solid var(--color-border-light)",
+  };
+
+  const tdStyle: React.CSSProperties = {
+    padding: "12px 16px",
+    fontSize: "var(--text-footnote)",
+    color: "var(--color-text-primary)",
+    borderBottom: "1px solid var(--color-border-light)",
+  };
+
+  const colorMap: Record<string, string> = {
+    completed: "var(--color-success)",
+    in_progress: "var(--color-cta)",
+    pending: "var(--color-warning)",
+    cancelled: "var(--color-text-secondary)",
+    contacted: "var(--color-cta)",
+    converted: "var(--color-success)",
+  };
+
   return (
     <div style={{ padding: 32 }}>
       <h1
@@ -90,7 +102,7 @@ export function AdminDashboard() {
           marginBottom: 32,
         }}
       >
-        {STATS.map((stat) => (
+        {stats.map((stat) => (
           <div
             key={stat.label}
             style={{
@@ -114,18 +126,9 @@ export function AdminDashboard() {
                 fontSize: "var(--text-head)",
                 fontWeight: "var(--weight-bold)",
                 color: stat.color,
-                marginBottom: 4,
               }}
             >
-              {stat.value}
-            </div>
-            <div
-              style={{
-                fontSize: "var(--text-caption)",
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              {stat.change}
+              {loading ? "-" : stat.value}
             </div>
           </div>
         ))}
@@ -161,16 +164,36 @@ export function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {RECENT_ORDERS.map((order) => (
-                <tr key={order.id}>
-                  <td style={tdStyle}>{order.id}</td>
-                  <td style={tdStyle}>{order.customer}</td>
-                  <td style={tdStyle}>{order.total}</td>
-                  <td style={tdStyle}>
-                    <StatusBadge status={order.status} />
-                  </td>
-                </tr>
-              ))}
+              {loading ? (
+                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center" }}>加载中...</td></tr>
+              ) : orders.length === 0 ? (
+                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center" }}>暂无订单</td></tr>
+              ) : (
+                orders.slice(0, 5).map((order) => (
+                  <tr key={order.id}>
+                    <td style={tdStyle}>{order.orderNo}</td>
+                    <td style={tdStyle}>{order.customer}</td>
+                    <td style={tdStyle}>¥{order.total.toLocaleString()}</td>
+                    <td style={tdStyle}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "2px 10px",
+                          borderRadius: "var(--radius-pill)",
+                          fontSize: "var(--text-caption)",
+                          fontWeight: "var(--weight-medium)",
+                          color: colorMap[order.status] || "var(--color-text-secondary)",
+                          background: colorMap[order.status]
+                            ? `color-mix(in srgb, ${colorMap[order.status]} 12%, transparent)`
+                            : "var(--color-bg-secondary)",
+                        }}
+                      >
+                        {STATUS_LABELS[order.status] || order.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -197,22 +220,42 @@ export function AdminDashboard() {
             <thead>
               <tr>
                 <th style={thStyle}>姓名</th>
-                <th style={thStyle}>主题</th>
+                <th style={thStyle}>服务</th>
                 <th style={thStyle}>时间</th>
                 <th style={thStyle}>状态</th>
               </tr>
             </thead>
             <tbody>
-              {RECENT_INQUIRIES.map((inq, i) => (
-                <tr key={i}>
-                  <td style={tdStyle}>{inq.name}</td>
-                  <td style={tdStyle}>{inq.subject}</td>
-                  <td style={tdStyle}>{inq.time}</td>
-                  <td style={tdStyle}>
-                    <StatusBadge status={inq.status} />
-                  </td>
-                </tr>
-              ))}
+              {loading ? (
+                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center" }}>加载中...</td></tr>
+              ) : inquiries.length === 0 ? (
+                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center" }}>暂无咨询</td></tr>
+              ) : (
+                inquiries.slice(0, 5).map((inq) => (
+                  <tr key={inq.id}>
+                    <td style={tdStyle}>{inq.name}</td>
+                    <td style={tdStyle}>{inq.service}</td>
+                    <td style={tdStyle}>{new Date(inq.createdAt).toLocaleDateString("zh-CN")}</td>
+                    <td style={tdStyle}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "2px 10px",
+                          borderRadius: "var(--radius-pill)",
+                          fontSize: "var(--text-caption)",
+                          fontWeight: "var(--weight-medium)",
+                          color: colorMap[inq.status] || "var(--color-text-secondary)",
+                          background: colorMap[inq.status]
+                            ? `color-mix(in srgb, ${colorMap[inq.status]} 12%, transparent)`
+                            : "var(--color-bg-secondary)",
+                        }}
+                      >
+                        {INQUIRY_STATUS_LABELS[inq.status] || inq.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -15,14 +15,14 @@ const categoryLabels: Record<string, string> = {
   ip: "IP",
 };
 
-function ImagePlaceholder({
-  id,
-  label,
+function CaseImage({
+  src,
+  alt,
   aspectRatio,
   style,
 }: {
-  id: string;
-  label: string;
+  src: string;
+  alt: string;
   aspectRatio?: string;
   style?: React.CSSProperties;
 }) {
@@ -31,24 +31,20 @@ function ImagePlaceholder({
       style={{
         width: "100%",
         aspectRatio: aspectRatio || "16/9",
-        background: "var(--color-bg-secondary)",
         borderRadius: "var(--radius-lg)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        overflow: "hidden",
         ...style,
       }}
     >
-      <div
+      <img
+        src={src}
+        alt={alt}
         style={{
-          color: "var(--color-text-tertiary)",
-          fontSize: 14,
-          textAlign: "center",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
         }}
-      >
-        <div style={{ marginBottom: 8, fontWeight: 600 }}>{id}</div>
-        <div style={{ fontSize: 12 }}>{label}</div>
-      </div>
+      />
     </div>
   );
 }
@@ -126,10 +122,10 @@ export default function CaseDetailPage({
             margin: "0 auto",
           }}
         >
-          {/* Large Cover Image Placeholder */}
-          <ImagePlaceholder
-            id={caseItem.coverImage}
-            label="案例封面大图"
+          {/* Large Cover Image */}
+          <CaseImage
+            src={caseItem.coverImage}
+            alt={caseItem.title}
             aspectRatio="21/9"
             style={{
               borderRadius: "var(--radius-xl)",
@@ -169,7 +165,7 @@ export default function CaseDetailPage({
             <p
               style={{
                 fontSize: 21,
-                color: "var(--color-text-secondary)",
+                color: "rgba(245, 245, 247, 0.7)",
                 fontWeight: 400,
               }}
             >
@@ -289,10 +285,10 @@ export default function CaseDetailPage({
               }}
             >
               {caseItem.gallery.map((img, index) => (
-                <ImagePlaceholder
+                <CaseImage
                   key={img}
-                  id={img}
-                  label={`展示图 ${index + 1}`}
+                  src={img}
+                  alt={`${caseItem.title} 展示图 ${index + 1}`}
                   aspectRatio="4/3"
                 />
               ))}

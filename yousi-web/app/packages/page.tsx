@@ -50,7 +50,7 @@ function HeroSection() {
           style={{
             fontSize: "clamp(21px, 4vw, 32px)",
             fontWeight: 400,
-            color: "var(--color-text-secondary)",
+            color: "rgba(245, 245, 247, 0.7)",
             lineHeight: "var(--leading-snug)",
           }}
         >

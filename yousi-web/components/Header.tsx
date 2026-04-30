@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -234,13 +235,32 @@ const navItems: NavItem[] = [
   },
 ];
 
-export default function Header() {
+function HeaderInner() {
   const [activePanel, setActivePanel] = useState<PanelType>(null);
   const [activeNav, setActiveNav] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileActiveNav, setMobileActiveNav] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const leaveTimeoutRef = useRef<NodeJS.Timeout>(null);
+  // Block Safari's auto-fired mouseenter after remount
+  const suppressRef = useRef(true);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      suppressRef.current = false;
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleNavEnter = (name: string) => {
+    if (suppressRef.current) return;
     if (leaveTimeoutRef.current) {
       clearTimeout(leaveTimeoutRef.current);
       leaveTimeoutRef.current = null;
@@ -395,8 +415,7 @@ export default function Header() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 24,
-              width: 140,
+              gap: 16,
               justifyContent: "flex-end",
               flexShrink: 0,
             }}
@@ -446,7 +465,6 @@ export default function Header() {
 
             <button
               style={{
-                display: "none",
                 background: "none",
                 border: "none",
                 cursor: "pointer",
@@ -454,7 +472,7 @@ export default function Header() {
                 color: "var(--color-text-primary)",
               }}
               className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => { setMobileMenuOpen(!mobileMenuOpen); if (mobileMenuOpen) setMobileActiveNav(null); }}
               aria-label="菜单"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -480,7 +498,7 @@ export default function Header() {
             marginLeft: "max(calc((100vw - var(--content-max-width)) / 2), var(--space-6))",
             marginRight: "var(--space-6)",
             overflow: "hidden",
-            height: hasPanel ? "calc(50vh - 44px)" : 0,
+            height: hasPanel ? (isMobile ? "calc(100vh - 44px)" : "calc(50vh - 44px)") : 0,
             opacity: hasPanel ? 1 : 0,
             transition: "height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
@@ -491,9 +509,9 @@ export default function Header() {
               style={{
                 padding: "32px var(--space-6) 40px",
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
                 gap: 12,
               }}
+              className="grid-cols-1 md:grid-cols-3"
             >
               {/* Explore Column */}
               <div>
@@ -518,7 +536,7 @@ export default function Header() {
                     const fontWeight = index === 0 ? 700 : index === 1 ? 600 : 400;
                     return (
                       <li
-                        key={child.name}
+                        key={`${currentItem.name}-${child.name}`}
                         style={{
                           opacity: 0,
                           animation: "fadeSlideUp 0.5s ease forwards",
@@ -570,7 +588,7 @@ export default function Header() {
                 <ul style={{ listStyle: "none", padding: 0 }}>
                   {currentItem.shop.items.map((child, index) => (
                     <li
-                      key={child.name}
+                      key={`${currentItem.name}-${child.name}`}
                       style={{
                         opacity: 0,
                         animation: "fadeSlideUp 0.5s ease forwards",
@@ -621,7 +639,7 @@ export default function Header() {
                 <ul style={{ listStyle: "none", padding: 0 }}>
                   {currentItem.related.items.map((child, index) => (
                     <li
-                      key={child.name}
+                      key={`${currentItem.name}-${child.name}`}
                       style={{
                         opacity: 0,
                         animation: "fadeSlideUp 0.5s ease forwards",
@@ -736,9 +754,9 @@ export default function Header() {
               style={{
                 padding: "32px var(--space-6) 40px",
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
                 gap: 12,
               }}
+              className="grid-cols-1 md:grid-cols-3"
             >
               {/* Account Column */}
               <div>
@@ -931,7 +949,7 @@ export default function Header() {
         <div
           style={{
             position: "fixed",
-            top: 48,
+            top: 44,
             left: 0,
             right: 0,
             bottom: 0,
@@ -942,42 +960,132 @@ export default function Header() {
           }}
           className="md:hidden"
         >
-          {navItems.map((item) => (
-            <div key={item.name} style={{ marginBottom: 24 }}>
-              <Link
-                href={item.href}
+          {!mobileActiveNav ? (
+            /* Layer 1: Category list */
+            navItems.map((item) => (
+              <button
+                key={item.name}
+                onClick={() => setMobileActiveNav(item.name)}
                 style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  padding: "16px 0",
                   fontSize: 24,
                   fontWeight: 600,
                   color: "var(--color-text-primary)",
-                  textDecoration: "none",
-                  display: "block",
-                  marginBottom: 12,
+                  background: "none",
+                  border: "none",
+                  borderBottom: "1px solid var(--color-divider)",
+                  cursor: "pointer",
+                  textAlign: "left",
                 }}
-                onClick={() => setMobileMenuOpen(false)}
               >
                 {item.name}
-              </Link>
-              <div style={{ paddingLeft: 16 }}>
-                {item.shop.items.map((child) => (
-                  <Link
-                    key={child.name}
-                    href={child.href}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </button>
+            ))
+          ) : (
+            /* Layer 2: Sub-links for selected category */
+            (() => {
+              const item = navItems.find((n) => n.name === mobileActiveNav);
+              if (!item) return null;
+              return (
+                <div>
+                  <button
+                    onClick={() => setMobileActiveNav(null)}
                     style={{
-                      fontSize: 17,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "12px 0",
+                      fontSize: 14,
+                      fontWeight: 500,
                       color: "var(--color-text-secondary)",
-                      textDecoration: "none",
-                      display: "block",
-                      padding: "8px 0",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      marginBottom: 16,
                     }}
-                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    {child.name}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    返回
+                  </button>
+
+                  <Link
+                    href={item.href}
+                    style={{
+                      display: "block",
+                      fontSize: 28,
+                      fontWeight: 700,
+                      color: "var(--color-text-primary)",
+                      textDecoration: "none",
+                      marginBottom: 24,
+                    }}
+                    onClick={() => { setMobileMenuOpen(false); setMobileActiveNav(null); }}
+                  >
+                    {item.name}
                   </Link>
-                ))}
-              </div>
-            </div>
-          ))}
+
+                  {/* Explore */}
+                  <div style={{ marginBottom: 24 }}>
+                    <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
+                      {item.explore.title}
+                    </h3>
+                    {item.explore.items.map((child) => (
+                      <Link
+                        key={child.name}
+                        href={child.href}
+                        style={{ display: "block", padding: "10px 0", fontSize: 17, fontWeight: 500, color: "var(--color-text-primary)", textDecoration: "none" }}
+                        onClick={() => { setMobileMenuOpen(false); setMobileActiveNav(null); }}
+                      >
+                        {child.name}
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Shop */}
+                  <div style={{ marginBottom: 24 }}>
+                    <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
+                      {item.shop.title}
+                    </h3>
+                    {item.shop.items.map((child) => (
+                      <Link
+                        key={child.name}
+                        href={child.href}
+                        style={{ display: "block", padding: "8px 0", fontSize: 14, color: "var(--color-text-primary)", textDecoration: "none" }}
+                        onClick={() => { setMobileMenuOpen(false); setMobileActiveNav(null); }}
+                      >
+                        {child.name}
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Related */}
+                  <div style={{ marginBottom: 24 }}>
+                    <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
+                      {item.related.title}
+                    </h3>
+                    {item.related.items.map((child) => (
+                      <Link
+                        key={child.name}
+                        href={child.href}
+                        style={{ display: "block", padding: "8px 0", fontSize: 14, color: "var(--color-text-secondary)", textDecoration: "none" }}
+                        onClick={() => { setMobileMenuOpen(false); setMobileActiveNav(null); }}
+                      >
+                        {child.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()
+          )}
         </div>
       )}
 
@@ -999,4 +1107,10 @@ export default function Header() {
       `}</style>
     </>
   );
+}
+
+// Wrapper that forces remount on route change (Apple-like behavior)
+export default function Header() {
+  const pathname = usePathname();
+  return <HeaderInner key={pathname} />;
 }

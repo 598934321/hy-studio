@@ -52,7 +52,7 @@ export const ipServices: Service[] = [
     tagline: "为您的幼儿园打造独一无二的品牌吉祥物",
     description: "专业设计师团队，从创意构思到形象落地，打造专属幼儿园IP形象，让品牌形象深入人心，成为孩子们喜爱的好朋友。",
     price: "¥12,800 起",
-    heroImage: "IMG-020",
+    heroImage: "/images/services/ip-design.webp",
     features: [
       {
         icon: "palette",
@@ -90,14 +90,14 @@ export const ipServices: Service[] = [
         title: "星星幼儿园IP形象设计",
         kindergarten: "成都星星幼儿园",
         testimonial: "小朋友们超级喜欢新的吉祥物，每天都要抱着玩偶睡觉！",
-        coverImage: "IMG-015",
+        coverImage: "/images/thumbnails/kindergarten-06.webp",
       },
       {
         id: "case-001",
         title: "阳光幼儿园品牌全案升级",
         kindergarten: "成都阳光幼儿园",
         testimonial: "设计团队非常专业，把我们的想法完美呈现出来了。",
-        coverImage: "IMG-010",
+        coverImage: "/images/thumbnails/kindergarten-01.webp",
       },
     ],
     relatedServices: [
@@ -130,7 +130,7 @@ export const ipServices: Service[] = [
     tagline: "让您的IP形象创造更大商业价值",
     description: "专业的IP授权运营服务，从品牌授权到联名合作，帮助幼儿园IP形象实现商业化运营，拓展品牌影响力与收益渠道。",
     price: "¥8,800 起",
-    heroImage: "IMG-023",
+    heroImage: "/images/services/ip-licensing.webp",
     features: [
       {
         icon: "award",
@@ -168,14 +168,14 @@ export const ipServices: Service[] = [
         title: "阳光幼儿园品牌全案升级",
         kindergarten: "成都阳光幼儿园",
         testimonial: "通过IP授权合作，品牌知名度提升了很多，家长们都很认可。",
-        coverImage: "IMG-010",
+        coverImage: "/images/thumbnails/kindergarten-01.webp",
       },
       {
         id: "case-005",
         title: "智慧树幼儿园品牌宣传片",
         kindergarten: "成都智慧树幼儿园",
         testimonial: "运营团队非常专业，帮我们对接了优质的合作资源。",
-        coverImage: "IMG-014",
+        coverImage: "/images/thumbnails/kindergarten-05.webp",
       },
     ],
     relatedServices: [
@@ -208,7 +208,7 @@ export const ipServices: Service[] = [
     tagline: "让IP形象走进孩子们的日常生活",
     description: "从毛绒玩具到文具周边，将幼儿园IP形象开发成各类衍生产品，增强品牌粘性，创造额外营收渠道。",
     price: "¥6,800 起",
-    heroImage: "IMG-026",
+    heroImage: "/images/services/ip-merchandise.webp",
     features: [
       {
         icon: "gift",
@@ -246,14 +246,14 @@ export const ipServices: Service[] = [
         title: "彩虹幼儿园音效系统设计",
         kindergarten: "成都彩虹幼儿园",
         testimonial: "孩子们特别喜欢印有吉祥物的书包和文具，家长们也纷纷购买。",
-        coverImage: "IMG-013",
+        coverImage: "/images/thumbnails/kindergarten-04.webp",
       },
       {
         id: "case-002",
         title: "未来星幼儿园视觉焕新",
         kindergarten: "成都未来星幼儿园",
         testimonial: "衍生品质量很好，成为了幼儿园的一大特色。",
-        coverImage: "IMG-011",
+        coverImage: "/images/thumbnails/kindergarten-02.webp",
       },
     ],
     relatedServices: [

@@ -23,7 +23,7 @@ export const servicesServices: Service[] = [
     tagline: "从零到一，打造幼儿园专属品牌体系",
     description: "专业品牌顾问团队，通过市场调研、竞品分析、品牌定位，为幼儿园量身定制品牌战略方案，让品牌从理念到落地一步到位。",
     price: "¥4,980 起",
-    heroImage: "IMG-101",
+    heroImage: "/images/services/brand-strategy.webp",
     features: [
       {
         icon: "target",
@@ -61,14 +61,14 @@ export const servicesServices: Service[] = [
         title: "阳光幼儿园品牌全案升级",
         kindergarten: "成都阳光幼儿园",
         testimonial: "品牌定位非常精准，家长满意度提升了40%。",
-        coverImage: "IMG-010",
+        coverImage: "/images/thumbnails/kindergarten-01.webp",
       },
       {
         id: "case-002",
         title: "未来星幼儿园视觉焕新",
         kindergarten: "成都未来星幼儿园",
         testimonial: "顾问团队很专业，品牌焕然一新。",
-        coverImage: "IMG-011",
+        coverImage: "/images/thumbnails/kindergarten-02.webp",
       },
     ],
     relatedServices: [
@@ -101,7 +101,7 @@ export const servicesServices: Service[] = [
     tagline: "让每一处视觉都传递品牌温度",
     description: "专业设计团队，从LOGO到园所环境，从招生物料到线上视觉，全方位打造幼儿园品牌视觉体系，让家长一眼记住你。",
     price: "¥2,980 起",
-    heroImage: "IMG-102",
+    heroImage: "/images/services/visual-design.webp",
     features: [
       {
         icon: "palette",
@@ -139,14 +139,14 @@ export const servicesServices: Service[] = [
         title: "未来星幼儿园视觉焕新",
         kindergarten: "成都未来星幼儿园",
         testimonial: "设计很有质感，家长都说我们幼儿园看起来更专业了。",
-        coverImage: "IMG-011",
+        coverImage: "/images/thumbnails/kindergarten-02.webp",
       },
       {
         id: "case-006",
         title: "星星幼儿园IP形象设计",
         kindergarten: "成都星星幼儿园",
         testimonial: "海报效果特别好，招生转化率明显提升。",
-        coverImage: "IMG-015",
+        coverImage: "/images/thumbnails/kindergarten-06.webp",
       },
     ],
     relatedServices: [
@@ -179,7 +179,7 @@ export const servicesServices: Service[] = [
     tagline: "好内容，让品牌自己会说话",
     description: "专业内容团队，为幼儿园提供公众号运营、短视频脚本、活动策划等一站式内容服务，用好内容吸引好家长。",
     price: "¥1,980 起",
-    heroImage: "IMG-103",
+    heroImage: "/images/services/content-creation.webp",
     features: [
       {
         icon: "edit",
@@ -217,14 +217,14 @@ export const servicesServices: Service[] = [
         title: "阳光幼儿园品牌全案升级",
         kindergarten: "成都阳光幼儿园",
         testimonial: "文章阅读量从200涨到2000+，效果太明显了。",
-        coverImage: "IMG-010",
+        coverImage: "/images/thumbnails/kindergarten-01.webp",
       },
       {
         id: "case-005",
         title: "智慧树幼儿园品牌宣传片",
         kindergarten: "成都智慧树幼儿园",
         testimonial: "3个月涨粉5000+，招生电话明显多了。",
-        coverImage: "IMG-014",
+        coverImage: "/images/thumbnails/kindergarten-05.webp",
       },
     ],
     relatedServices: [

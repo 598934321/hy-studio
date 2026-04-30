@@ -1,65 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect, useCallback } from "react";
+import { inquiriesApi } from "@/lib/api";
 
-const INQUIRIES = [
-  {
-    id: "INQ-001",
-    name: "张园长",
-    kindergarten: "成都阳光幼儿园",
-    phone: "138****1234",
-    service: "品牌全案",
-    budget: "10,000 - 30,000",
-    message: "想做一个完整的幼儿园品牌升级，包括Logo、VI和空间设计。",
-    status: "pending",
-    date: "2026-04-30",
-  },
-  {
-    id: "INQ-002",
-    name: "李园长",
-    kindergarten: "成都未来星幼儿园",
-    phone: "139****5678",
-    service: "音乐制作",
-    budget: "5,000 - 10,000",
-    message: "需要制作一首园歌和几首背景音乐。",
-    status: "contacted",
-    date: "2026-04-29",
-  },
-  {
-    id: "INQ-003",
-    name: "王园长",
-    kindergarten: "成都蓝天幼儿园",
-    phone: "137****9012",
-    service: "视频制作",
-    budget: "5,000 - 10,000",
-    message: "想拍一个招生宣传片，大概3-5分钟。",
-    status: "pending",
-    date: "2026-04-28",
-  },
-  {
-    id: "INQ-004",
-    name: "赵园长",
-    kindergarten: "成都彩虹幼儿园",
-    phone: "136****3456",
-    service: "IP设计",
-    budget: "10,000 - 30,000",
-    message: "想设计一个幼儿园吉祥物，用于文创产品。",
-    status: "converted",
-    date: "2026-04-27",
-  },
-  {
-    id: "INQ-005",
-    name: "刘园长",
-    kindergarten: "成都智慧树幼儿园",
-    phone: "135****7890",
-    service: "网站开发",
-    budget: "5,000 - 10,000",
-    message: "需要做一个幼儿园官网，要有在线报名功能。",
-    status: "contacted",
-    date: "2026-04-26",
-  },
-];
+interface Inquiry {
+  id: string;
+  name: string;
+  kindergarten: string;
+  phone: string;
+  wechat?: string;
+  service: string;
+  message?: string;
+  status: string;
+  createdAt: string;
+}
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
   pending: { label: "待联系", color: "#FF9500", bg: "rgba(255,149,0,0.1)" },
@@ -69,11 +23,35 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
 
 export default function AdminInquiries() {
   const [statusFilter, setStatusFilter] = useState("all");
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered =
-    statusFilter === "all"
-      ? INQUIRIES
-      : INQUIRIES.filter((i) => i.status === statusFilter);
+  const loadInquiries = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await inquiriesApi.list(statusFilter === "all" ? undefined : statusFilter);
+      setInquiries(data as unknown as Inquiry[]);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter]);
+
+  useEffect(() => {
+    loadInquiries();
+  }, [loadInquiries]);
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      await inquiriesApi.updateStatus(id, newStatus);
+      setInquiries((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, status: newStatus } : i))
+      );
+    } catch {
+      alert("更新失败");
+    }
+  };
 
   return (
     <div style={{ padding: 32 }}>
@@ -97,13 +75,7 @@ export default function AdminInquiries() {
       </div>
 
       {/* Filter */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          marginBottom: 24,
-        }}
-      >
+      <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         {[
           { key: "all", label: "全部" },
           { key: "pending", label: "待联系" },
@@ -120,12 +92,8 @@ export default function AdminInquiries() {
               fontSize: 14,
               fontWeight: 500,
               cursor: "pointer",
-              background:
-                statusFilter === f.key
-                  ? "var(--color-cta)"
-                  : "var(--color-bg)",
-              color:
-                statusFilter === f.key ? "#FFFFFF" : "var(--color-text-primary)",
+              background: statusFilter === f.key ? "var(--color-cta)" : "var(--color-bg)",
+              color: statusFilter === f.key ? "#FFFFFF" : "var(--color-text-primary)",
               transition: "all var(--duration-fast)",
             }}
           >
@@ -142,92 +110,86 @@ export default function AdminInquiries() {
           overflow: "hidden",
         }}
       >
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: 14,
-          }}
-        >
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
-            <tr
-              style={{
-                background: "var(--color-bg-secondary)",
-                textAlign: "left",
-              }}
-            >
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>编号</th>
+            <tr style={{ background: "var(--color-bg-secondary)", textAlign: "left" }}>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>客户</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>幼儿园</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600 }}>电话</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>意向服务</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>预算</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600 }}>留言</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>状态</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>日期</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>操作</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((inquiry) => {
-              const status = STATUS_MAP[inquiry.status];
-              return (
-                <tr
-                  key={inquiry.id}
-                  style={{ borderTop: "1px solid var(--color-divider)" }}
-                >
-                  <td style={{ padding: "12px 16px" }}>{inquiry.id}</td>
-                  <td style={{ padding: "12px 16px" }}>{inquiry.name}</td>
-                  <td style={{ padding: "12px 16px" }}>{inquiry.kindergarten}</td>
-                  <td style={{ padding: "12px 16px" }}>{inquiry.service}</td>
-                  <td style={{ padding: "12px 16px" }}>¥{inquiry.budget}</td>
-                  <td style={{ padding: "12px 16px" }}>
-                    <span
-                      style={{
-                        padding: "2px 10px",
-                        borderRadius: "var(--radius-pill)",
-                        fontSize: 12,
-                        fontWeight: 500,
-                        color: status.color,
-                        background: status.bg,
-                      }}
-                    >
-                      {status.label}
-                    </span>
-                  </td>
-                  <td style={{ padding: "12px 16px", color: "var(--color-text-secondary)" }}>
-                    {inquiry.date}
-                  </td>
-                  <td style={{ padding: "12px 16px" }}>
-                    <button
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "var(--color-text-link)",
-                        cursor: "pointer",
-                        fontSize: 14,
-                      }}
-                    >
-                      查看详情
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+            {loading ? (
+              <tr>
+                <td colSpan={8} style={{ padding: 32, textAlign: "center", color: "var(--color-text-secondary)" }}>
+                  加载中...
+                </td>
+              </tr>
+            ) : inquiries.length === 0 ? (
+              <tr>
+                <td colSpan={8} style={{ padding: 32, textAlign: "center", color: "var(--color-text-secondary)" }}>
+                  暂无咨询记录
+                </td>
+              </tr>
+            ) : (
+              inquiries.map((inquiry) => {
+                const status = STATUS_MAP[inquiry.status] || STATUS_MAP.pending;
+                return (
+                  <tr key={inquiry.id} style={{ borderTop: "1px solid var(--color-divider)" }}>
+                    <td style={{ padding: "12px 16px" }}>{inquiry.name}</td>
+                    <td style={{ padding: "12px 16px" }}>{inquiry.kindergarten}</td>
+                    <td style={{ padding: "12px 16px" }}>{inquiry.phone}</td>
+                    <td style={{ padding: "12px 16px" }}>{inquiry.service}</td>
+                    <td style={{ padding: "12px 16px", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {inquiry.message || "-"}
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <span
+                        style={{
+                          padding: "2px 10px",
+                          borderRadius: "var(--radius-pill)",
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: status.color,
+                          background: status.bg,
+                        }}
+                      >
+                        {status.label}
+                      </span>
+                    </td>
+                    <td style={{ padding: "12px 16px", color: "var(--color-text-secondary)" }}>
+                      {new Date(inquiry.createdAt).toLocaleDateString("zh-CN")}
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <select
+                        value={inquiry.status}
+                        onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
+                        style={{
+                          padding: "4px 8px",
+                          borderRadius: "var(--radius-sm)",
+                          border: "1px solid var(--color-border)",
+                          fontSize: 12,
+                          background: "var(--color-bg)",
+                          color: "var(--color-text-primary)",
+                          outline: "none",
+                        }}
+                      >
+                        <option value="pending">待联系</option>
+                        <option value="contacted">已联系</option>
+                        <option value="converted">已转化</option>
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
-      </div>
-
-      {/* Detail hint */}
-      <div
-        style={{
-          marginTop: 24,
-          padding: 16,
-          background: "var(--color-bg)",
-          borderRadius: "var(--radius-md)",
-          fontSize: 14,
-          color: "var(--color-text-secondary)",
-        }}
-      >
-        提示：咨询记录来自联系页面和结算页的咨询表单。接入 Supabase 后将自动同步数据。
       </div>
     </div>
   );

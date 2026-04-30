@@ -1,23 +1,28 @@
 "use client";
 
-const ORDERS = [
-  { id: "ORD-20260430-001", customer: "张园长", phone: "138****1234", items: "整园环创设计", total: "¥35,000", status: "进行中", date: "2026-04-30" },
-  { id: "ORD-20260429-002", customer: "李园长", phone: "139****5678", items: "品牌VI设计", total: "¥18,000", status: "已完成", date: "2026-04-29" },
-  { id: "ORD-20260428-003", customer: "王主任", phone: "137****9012", items: "空间导视设计", total: "¥12,500", status: "待确认", date: "2026-04-28" },
-  { id: "ORD-20260427-004", customer: "赵园长", phone: "136****3456", items: "活动策划设计", total: "¥8,000", status: "进行中", date: "2026-04-27" },
-  { id: "ORD-20260426-005", customer: "刘园长", phone: "135****7890", items: "整园环创设计", total: "¥42,000", status: "已完成", date: "2026-04-26" },
-];
+import { useState, useEffect, useCallback } from "react";
+import { ordersApi } from "@/lib/api";
 
-const STATUS_OPTIONS = ["全部状态", "待确认", "进行中", "已完成", "已取消"];
+interface Order {
+  id: string;
+  orderNo: string;
+  customer: string;
+  phone: string;
+  items: { name: string; price: number; quantity: number }[];
+  total: number;
+  status: string;
+  createdAt: string;
+}
+
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
+  pending: { label: "待确认", color: "var(--color-warning)" },
+  in_progress: { label: "进行中", color: "var(--color-cta)" },
+  completed: { label: "已完成", color: "var(--color-success)" },
+  cancelled: { label: "已取消", color: "var(--color-text-secondary)" },
+};
 
 function StatusBadge({ status }: { status: string }) {
-  const colorMap: Record<string, string> = {
-    "已完成": "var(--color-success)",
-    "进行中": "var(--color-cta)",
-    "待确认": "var(--color-warning)",
-    "已取消": "var(--color-text-secondary)",
-  };
-
+  const info = STATUS_MAP[status] || STATUS_MAP.pending;
   return (
     <span
       style={{
@@ -26,13 +31,11 @@ function StatusBadge({ status }: { status: string }) {
         borderRadius: "var(--radius-pill)",
         fontSize: "var(--text-caption)",
         fontWeight: "var(--weight-medium)",
-        color: colorMap[status] || "var(--color-text-secondary)",
-        background: colorMap[status]
-          ? `color-mix(in srgb, ${colorMap[status]} 12%, transparent)`
-          : "var(--color-bg-secondary)",
+        color: info.color,
+        background: `color-mix(in srgb, ${info.color} 12%, transparent)`,
       }}
     >
-      {status}
+      {info.label}
     </span>
   );
 }
@@ -53,17 +56,38 @@ const tdStyle: React.CSSProperties = {
   borderBottom: "1px solid var(--color-border-light)",
 };
 
-const btnStyle: React.CSSProperties = {
-  padding: "4px 12px",
-  fontSize: "var(--text-caption)",
-  borderRadius: "var(--radius-sm)",
-  border: "1px solid var(--color-border)",
-  background: "var(--color-bg)",
-  color: "var(--color-text-primary)",
-  cursor: "pointer",
-};
-
 export function AdminOrders() {
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await ordersApi.list(statusFilter === "all" ? undefined : statusFilter);
+      setOrders(data as unknown as Order[]);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter]);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      await ordersApi.updateStatus(id, newStatus);
+      setOrders((prev) =>
+        prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o))
+      );
+    } catch {
+      alert("更新失败");
+    }
+  };
+
   return (
     <div style={{ padding: 32 }}>
       <h1
@@ -78,74 +102,32 @@ export function AdminOrders() {
       </h1>
 
       {/* Filter Bar */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          marginBottom: 24,
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        <select
-          style={{
-            padding: "8px 12px",
-            borderRadius: "var(--radius-sm)",
-            border: "1px solid var(--color-border)",
-            fontSize: "var(--text-footnote)",
-            background: "var(--color-bg)",
-            color: "var(--color-text-primary)",
-            outline: "none",
-          }}
-        >
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-
-        <input
-          type="date"
-          style={{
-            padding: "8px 12px",
-            borderRadius: "var(--radius-sm)",
-            border: "1px solid var(--color-border)",
-            fontSize: "var(--text-footnote)",
-            background: "var(--color-bg)",
-            color: "var(--color-text-primary)",
-            outline: "none",
-          }}
-        />
-
-        <span style={{ color: "var(--color-text-secondary)", fontSize: "var(--text-footnote)" }}>至</span>
-
-        <input
-          type="date"
-          style={{
-            padding: "8px 12px",
-            borderRadius: "var(--radius-sm)",
-            border: "1px solid var(--color-border)",
-            fontSize: "var(--text-footnote)",
-            background: "var(--color-bg)",
-            color: "var(--color-text-primary)",
-            outline: "none",
-          }}
-        />
-
-        <input
-          type="text"
-          placeholder="搜索订单号或客户..."
-          style={{
-            padding: "8px 12px",
-            borderRadius: "var(--radius-sm)",
-            border: "1px solid var(--color-border)",
-            fontSize: "var(--text-footnote)",
-            background: "var(--color-bg)",
-            color: "var(--color-text-primary)",
-            outline: "none",
-            flex: 1,
-            minWidth: 200,
-          }}
-        />
+      <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+        {[
+          { key: "all", label: "全部" },
+          { key: "pending", label: "待确认" },
+          { key: "in_progress", label: "进行中" },
+          { key: "completed", label: "已完成" },
+          { key: "cancelled", label: "已取消" },
+        ].map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setStatusFilter(f.key)}
+            style={{
+              padding: "6px 16px",
+              borderRadius: "var(--radius-pill)",
+              border: "none",
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: "pointer",
+              background: statusFilter === f.key ? "var(--color-cta)" : "var(--color-bg)",
+              color: statusFilter === f.key ? "#FFFFFF" : "var(--color-text-primary)",
+              transition: "all var(--duration-fast)",
+            }}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {/* Orders Table */}
@@ -170,29 +152,61 @@ export function AdminOrders() {
             </tr>
           </thead>
           <tbody>
-            {ORDERS.map((order) => (
-              <tr key={order.id}>
-                <td style={tdStyle}>{order.id}</td>
-                <td style={tdStyle}>
-                  <div>{order.customer}</div>
-                  <div style={{ fontSize: "var(--text-caption)", color: "var(--color-text-secondary)" }}>
-                    {order.phone}
-                  </div>
-                </td>
-                <td style={tdStyle}>{order.items}</td>
-                <td style={tdStyle}>{order.total}</td>
-                <td style={tdStyle}>
-                  <StatusBadge status={order.status} />
-                </td>
-                <td style={tdStyle}>{order.date}</td>
-                <td style={tdStyle}>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button style={btnStyle}>查看</button>
-                    <button style={btnStyle}>编辑</button>
-                  </div>
+            {loading ? (
+              <tr>
+                <td colSpan={7} style={{ ...tdStyle, textAlign: "center", padding: 32 }}>
+                  加载中...
                 </td>
               </tr>
-            ))}
+            ) : orders.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ ...tdStyle, textAlign: "center", padding: 32 }}>
+                  暂无订单
+                </td>
+              </tr>
+            ) : (
+              orders.map((order) => (
+                <tr key={order.id}>
+                  <td style={tdStyle}>{order.orderNo}</td>
+                  <td style={tdStyle}>
+                    <div>{order.customer}</div>
+                    <div style={{ fontSize: "var(--text-caption)", color: "var(--color-text-secondary)" }}>
+                      {order.phone}
+                    </div>
+                  </td>
+                  <td style={tdStyle}>
+                    {(order.items as { name: string }[]).map((i) => i.name).join("、")}
+                  </td>
+                  <td style={tdStyle}>¥{order.total.toLocaleString()}</td>
+                  <td style={tdStyle}>
+                    <StatusBadge status={order.status} />
+                  </td>
+                  <td style={tdStyle}>
+                    {new Date(order.createdAt).toLocaleDateString("zh-CN")}
+                  </td>
+                  <td style={tdStyle}>
+                    <select
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "var(--radius-sm)",
+                        border: "1px solid var(--color-border)",
+                        fontSize: 12,
+                        background: "var(--color-bg)",
+                        color: "var(--color-text-primary)",
+                        outline: "none",
+                      }}
+                    >
+                      <option value="pending">待确认</option>
+                      <option value="in_progress">进行中</option>
+                      <option value="completed">已完成</option>
+                      <option value="cancelled">已取消</option>
+                    </select>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

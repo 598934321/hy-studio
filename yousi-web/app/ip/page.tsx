@@ -116,7 +116,7 @@ function HeroSection() {
       <div
         style={{
           position: "relative",
-          zIndex: 1,
+          zIndex: 3,
           textAlign: "center",
           padding: "0 var(--space-6)",
           maxWidth: 900,
@@ -139,7 +139,7 @@ function HeroSection() {
           style={{
             fontSize: "clamp(21px, 4vw, 32px)",
             fontWeight: 400,
-            color: "var(--color-text-secondary)",
+            color: "rgba(245, 245, 247, 0.7)",
             marginBottom: "var(--space-4)",
             lineHeight: "var(--leading-snug)",
           }}
@@ -150,7 +150,7 @@ function HeroSection() {
           style={{
             fontSize: "clamp(17px, 3vw, 24px)",
             fontWeight: 400,
-            color: "var(--color-text-tertiary)",
+            color: "rgba(245, 245, 247, 0.5)",
             marginBottom: "var(--space-8)",
           }}
         >
@@ -209,7 +209,7 @@ function HeroSection() {
         </div>
       </div>
 
-      {/* Hero 图片占位 - 全宽 */}
+      {/* Hero 图片 - 全宽 */}
       <div
         style={{
           position: "absolute",
@@ -226,23 +226,27 @@ function HeroSection() {
         style={{
           position: "absolute",
           inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          background: "rgba(0, 0, 0, 0.4)",
+          zIndex: 1,
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
           zIndex: 0,
         }}
       >
-        <div
+        <img
+          src="/images/hero/ip-hero.webp"
+          alt="IP服务"
           style={{
-            color: "var(--color-text-tertiary)",
-            fontSize: 14,
-            textAlign: "center",
-            opacity: 0.5,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
           }}
-        >
-          <div style={{ marginBottom: 8 }}>IMG-IP-HERO</div>
-          <div style={{ fontSize: 12 }}>IP品类 Hero 全屏背景</div>
-        </div>
+        />
       </div>
     </section>
   );
@@ -364,23 +368,19 @@ function FeatureSection({
               style={{
                 width: "100%",
                 aspectRatio: "4/3",
-                background: "var(--color-bg-tertiary)",
                 borderRadius: "var(--radius-xl)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                overflow: "hidden",
               }}
             >
-              <div
+              <img
+                src={service.heroImage}
+                alt={service.name}
                 style={{
-                  color: "var(--color-text-tertiary)",
-                  fontSize: 14,
-                  textAlign: "center",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
                 }}
-              >
-                <div style={{ marginBottom: 8 }}>{service.heroImage}</div>
-                <div style={{ fontSize: 12 }}>{service.name} 主视觉</div>
-              </div>
+              />
             </div>
           </RevealOnScroll>
         </div>
@@ -462,7 +462,7 @@ function HighlightsSection() {
                 <div
                   style={{
                     fontSize: 14,
-                    color: "var(--color-text-secondary)",
+                    color: "rgba(245, 245, 247, 0.5)",
                   }}
                 >
                   {item.description}
@@ -476,28 +476,25 @@ function HighlightsSection() {
   );
 }
 
-function FullBleedImage({ id, label }: { id: string; label: string }) {
+function FullBleedImage({ src, alt }: { src: string; alt: string }) {
   return (
     <section
       style={{
         width: "100%",
         height: "60vh",
-        background: "var(--color-bg-secondary)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      <div
+      <img
+        src={src}
+        alt={alt}
         style={{
-          color: "var(--color-text-tertiary)",
-          fontSize: 14,
-          textAlign: "center",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
         }}
-      >
-        <div style={{ marginBottom: 8 }}>{id}</div>
-        <div style={{ fontSize: 12 }}>{label}</div>
-      </div>
+      />
     </section>
   );
 }
@@ -828,7 +825,7 @@ export default function IPPage() {
       </div>
 
       {/* 全宽图片分隔 */}
-      <FullBleedImage id="IMG-IP-MID" label="IP形象场景全宽图" />
+      <FullBleedImage src="/images/hero/ip-mid.webp" alt="IP形象场景" />
 
       {/* Screen 5: 数据亮点 - 深色背景 */}
       <HighlightsSection />

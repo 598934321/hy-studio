@@ -52,7 +52,7 @@ export const techServices: Service[] = [
     tagline: "为幼儿园打造专业品牌形象官网",
     description: "响应式网站设计与开发，适配PC、平板、手机全端访问，助力幼儿园建立专业线上品牌形象，提升招生转化率。",
     price: "¥5,800 起",
-    heroImage: "IMG-201", // 主视觉大图/视频
+    heroImage: "/images/services/web-dev.webp",
     features: [
       {
         icon: "layout",
@@ -90,14 +90,14 @@ export const techServices: Service[] = [
         title: "阳光幼儿园品牌全案升级",
         kindergarten: "成都阳光幼儿园",
         testimonial: "网站上线后咨询量提升了40%，家长都说看着很专业。",
-        coverImage: "IMG-010",
+        coverImage: "/images/thumbnails/kindergarten-01.webp",
       },
       {
         id: "case-005",
         title: "智慧树幼儿园品牌宣传片",
         kindergarten: "成都智慧树幼儿园",
         testimonial: "新版网站漂亮又好用，报名转化率明显提高了。",
-        coverImage: "IMG-014",
+        coverImage: "/images/thumbnails/kindergarten-05.webp",
       },
     ],
     relatedServices: [
@@ -130,7 +130,7 @@ export const techServices: Service[] = [
     tagline: "家园共育，一码直达",
     description: "微信小程序定制开发，集成家园互动、在线报名、课程展示、通知推送等核心功能，让家长随时掌握孩子在园动态。",
     price: "¥8,800 起",
-    heroImage: "IMG-202", // 主视觉大图/视频
+    heroImage: "/images/services/mini-program.webp",
     features: [
       {
         icon: "smartphone",
@@ -168,14 +168,14 @@ export const techServices: Service[] = [
         title: "蓝天幼儿园园歌定制",
         kindergarten: "成都蓝天幼儿园",
         testimonial: "家长使用率超过95%，沟通效率大幅提升。",
-        coverImage: "IMG-012",
+        coverImage: "/images/thumbnails/kindergarten-03.webp",
       },
       {
         id: "case-001",
         title: "阳光幼儿园品牌全案升级",
         kindergarten: "成都阳光幼儿园",
         testimonial: "线上报名功能太方便了，招生季轻松了很多。",
-        coverImage: "IMG-010",
+        coverImage: "/images/thumbnails/kindergarten-01.webp",
       },
     ],
     relatedServices: [
@@ -208,7 +208,7 @@ export const techServices: Service[] = [
     tagline: "幼儿园数字化管理一站式解决方案",
     description: "深度定制幼儿园管理系统，涵盖教务管理、财务管理、人事管理、资产管理等模块，全面提升园所运营效率。",
     price: "¥15,800 起",
-    heroImage: "IMG-203", // 主视觉大图/视频
+    heroImage: "/images/services/system-custom.webp",
     features: [
       {
         icon: "settings",
@@ -246,14 +246,14 @@ export const techServices: Service[] = [
         title: "未来星幼儿园视觉焕新",
         kindergarten: "成都未来星幼儿园",
         testimonial: "5个园区统一管理，运营效率提升了60%。",
-        coverImage: "IMG-011",
+        coverImage: "/images/thumbnails/kindergarten-02.webp",
       },
       {
         id: "case-004",
         title: "彩虹幼儿园音效系统设计",
         kindergarten: "成都彩虹幼儿园",
         testimonial: "系统上线后老师工作量明显减轻，家长也很满意。",
-        coverImage: "IMG-013",
+        coverImage: "/images/thumbnails/kindergarten-04.webp",
       },
     ],
     relatedServices: [

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useAuthStore } from "@/store/authStore";
+import { useEffect, useState, useCallback } from "react";
+import { authApi } from "@/lib/api";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "数据概览", icon: "📊" },
@@ -21,19 +21,31 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, user, checkAuth, logout } = useAuthStore();
+  const [username, setUsername] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
+
+  const checkAuth = useCallback(async () => {
+    try {
+      const data = await authApi.me();
+      setUsername(data.username);
+    } catch {
+      setUsername(null);
+      router.replace("/login");
+    } finally {
+      setChecking(false);
+    }
+  }, [router]);
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  useEffect(() => {
-    if (!isAuthenticated || !user || user.role !== "admin") {
-      router.replace("/login");
-    }
-  }, [isAuthenticated, user, router]);
+  const handleLogout = async () => {
+    await authApi.logout();
+    router.replace("/login");
+  };
 
-  if (!isAuthenticated || !user || user.role !== "admin") {
+  if (checking || !username) {
     return (
       <div
         style={{
@@ -59,7 +71,7 @@ export default function AdminLayout({
           width: 240,
           flexShrink: 0,
           background: "var(--color-bg-dark)",
-          color: "var(--color-text-on-dark)",
+          color: "var(--color-text-primary)",
           display: "flex",
           flexDirection: "column",
           fontFamily: "var(--font-text)",
@@ -150,10 +162,10 @@ export default function AdminLayout({
                 color: "var(--color-text-secondary)",
               }}
             >
-              {user?.name}
+              {username}
             </span>
             <button
-              onClick={logout}
+              onClick={handleLogout}
               style={{
                 fontSize: "var(--text-caption)",
                 color: "var(--color-text-secondary)",

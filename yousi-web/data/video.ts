@@ -52,7 +52,7 @@ export const videoServices: Service[] = [
     tagline: "用镜头讲述幼儿园的品牌故事",
     description: "专业导演团队执导，4K超清拍摄，从策划到成片一站式服务，全方位展示幼儿园的办学理念、师资力量和校园文化，打造有温度的品牌宣传片。",
     price: "¥9,800 起",
-    heroImage: "IMG-020",
+    heroImage: "/images/services/corporate-video.webp",
     features: [
       {
         icon: "film",
@@ -90,14 +90,14 @@ export const videoServices: Service[] = [
         title: "智慧树幼儿园品牌宣传片",
         kindergarten: "成都智慧树幼儿园",
         testimonial: "宣传片拍得太好了，家长看完都说想来我们园！",
-        coverImage: "IMG-014",
+        coverImage: "/images/thumbnails/kindergarten-05.webp",
       },
       {
         id: "case-001",
         title: "阳光幼儿园品牌全案升级",
         kindergarten: "成都阳光幼儿园",
         testimonial: "招生季播放后，咨询量提升了40%。",
-        coverImage: "IMG-010",
+        coverImage: "/images/thumbnails/kindergarten-01.webp",
       },
     ],
     relatedServices: [
@@ -130,7 +130,7 @@ export const videoServices: Service[] = [
     tagline: "让幼儿园特色课程一目了然",
     description: "针对幼儿园特色课程、活动项目或周边产品，制作精炼有力的广告视频，突出核心卖点，适用于招生季投放、朋友圈推广和线下展示。",
     price: "¥6,800 起",
-    heroImage: "IMG-023",
+    heroImage: "/images/services/product-ad.webp",
     features: [
       {
         icon: "target",
@@ -168,14 +168,14 @@ export const videoServices: Service[] = [
         title: "未来星幼儿园视觉焕新",
         kindergarten: "成都未来星幼儿园",
         testimonial: "广告投出去第一天就收到了好几个咨询。",
-        coverImage: "IMG-011",
+        coverImage: "/images/thumbnails/kindergarten-02.webp",
       },
       {
         id: "case-004",
         title: "彩虹幼儿园音效系统设计",
         kindergarten: "成都彩虹幼儿园",
         testimonial: "朋友圈广告效果很好，家长转发率很高。",
-        coverImage: "IMG-013",
+        coverImage: "/images/thumbnails/kindergarten-04.webp",
       },
     ],
     relatedServices: [
@@ -208,7 +208,7 @@ export const videoServices: Service[] = [
     tagline: "用短视频让更多家长认识你",
     description: "针对抖音、小红书、视频号等平台，批量制作幼儿园日常记录、活动花絮、教师风采等短视频内容，持续输出优质内容，打造幼儿园线上影响力。",
     price: "¥2,980 起",
-    heroImage: "IMG-026",
+    heroImage: "/images/services/short-video.webp",
     features: [
       {
         icon: "package",
@@ -246,14 +246,14 @@ export const videoServices: Service[] = [
         title: "智慧树幼儿园品牌宣传片",
         kindergarten: "成都智慧树幼儿园",
         testimonial: "3个月涨粉2万，好多家长都是刷抖音来的。",
-        coverImage: "IMG-014",
+        coverImage: "/images/thumbnails/kindergarten-05.webp",
       },
       {
         id: "case-003",
         title: "蓝天幼儿园园歌定制",
         kindergarten: "成都蓝天幼儿园",
         testimonial: "每次活动的短视频家长都疯狂转发。",
-        coverImage: "IMG-012",
+        coverImage: "/images/thumbnails/kindergarten-03.webp",
       },
     ],
     relatedServices: [

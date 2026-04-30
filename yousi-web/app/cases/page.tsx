@@ -66,7 +66,7 @@ export default function CasesPage() {
             style={{
               fontSize: "clamp(18px, 4vw, 24px)",
               fontWeight: 400,
-              color: "var(--color-text-secondary)",
+              color: "rgba(245, 245, 247, 0.7)",
               lineHeight: "var(--leading-snug)",
             }}
           >
@@ -181,30 +181,24 @@ export default function CasesPage() {
                     }}
                     className="hover:shadow-[var(--shadow-hover)]"
                   >
-                    {/* Cover Image Placeholder */}
+                    {/* Cover Image */}
                     <div
                       className="img-scale"
                       style={{
                         width: "100%",
                         aspectRatio: "16/10",
-                        background: "var(--color-bg-secondary)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        overflow: "hidden",
                       }}
                     >
-                      <div
+                      <img
+                        src={caseItem.coverImage}
+                        alt={caseItem.title}
                         style={{
-                          color: "var(--color-text-tertiary)",
-                          fontSize: 14,
-                          textAlign: "center",
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
                         }}
-                      >
-                        <div style={{ marginBottom: 8, fontWeight: 600 }}>
-                          {caseItem.coverImage}
-                        </div>
-                        <div style={{ fontSize: 12 }}>案例封面图</div>
-                      </div>
+                      />
                     </div>
 
                     {/* Card Content */}

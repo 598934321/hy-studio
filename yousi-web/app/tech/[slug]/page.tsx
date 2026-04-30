@@ -9,14 +9,14 @@ import RevealOnScroll from "@/components/RevealOnScroll";
 import { techServices } from "@/data/tech";
 import type { Service } from "@/data/tech";
 
-function ImagePlaceholder({
-  id,
-  label,
+function ServiceImage({
+  src,
+  alt,
   aspectRatio,
   style,
 }: {
-  id: string;
-  label: string;
+  src: string;
+  alt: string;
   aspectRatio?: string;
   style?: React.CSSProperties;
 }) {
@@ -25,24 +25,20 @@ function ImagePlaceholder({
       style={{
         width: "100%",
         aspectRatio: aspectRatio || "16/9",
-        background: "var(--color-bg-secondary)",
         borderRadius: "var(--radius-lg)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        overflow: "hidden",
         ...style,
       }}
     >
-      <div
+      <img
+        src={src}
+        alt={alt}
         style={{
-          color: "var(--color-text-tertiary)",
-          fontSize: 14,
-          textAlign: "center",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
         }}
-      >
-        <div style={{ marginBottom: 8, fontWeight: 600 }}>{id}</div>
-        <div style={{ fontSize: 12 }}>{label}</div>
-      </div>
+      />
     </div>
   );
 }
@@ -81,13 +77,13 @@ function HeroSection({ service }: { service: Service }) {
           <Link
             href="/tech"
             style={{
-              color: "var(--color-text-secondary)",
+              color: "rgba(245, 245, 247, 0.7)",
               textDecoration: "none",
             }}
           >
             技术支持
           </Link>
-          <span style={{ color: "var(--color-text-tertiary)" }}>/</span>
+          <span style={{ color: "rgba(245, 245, 247, 0.4)" }}>/</span>
           <span style={{ color: "var(--color-text-on-dark)" }}>
             {service.name}
           </span>
@@ -202,9 +198,9 @@ function HeroSection({ service }: { service: Service }) {
           padding: "0 var(--space-6) var(--space-16)",
         }}
       >
-        <ImagePlaceholder
-          id={service.heroImage}
-          label="主视觉大图/视频"
+        <ServiceImage
+          src={service.heroImage}
+          alt={service.name}
           aspectRatio="21/9"
           style={{ borderRadius: "var(--radius-xl)" }}
         />
@@ -363,9 +359,9 @@ function IncludesSection({ service }: { service: Service }) {
         {/* 主图占位 */}
         <RevealOnScroll>
           <div style={{ marginBottom: "var(--space-16)" }}>
-            <ImagePlaceholder
-              id={`IMG-${service.slug}-includes`}
-              label="服务内容主视觉"
+            <ServiceImage
+              src={`/images/services/${service.slug}-includes.webp`}
+              alt={`${service.name} 服务内容`}
               aspectRatio="21/9"
             />
           </div>
@@ -484,9 +480,9 @@ function SpecsSection({ service }: { service: Service }) {
         {/* 规格图片占位 */}
         <RevealOnScroll>
           <div style={{ marginBottom: "var(--space-16)" }}>
-            <ImagePlaceholder
-              id={`IMG-${service.slug}-specs`}
-              label="服务规格视觉图"
+            <ServiceImage
+              src={`/images/services/${service.slug}-specs.webp`}
+              alt={`${service.name} 服务规格`}
               aspectRatio="21/9"
             />
           </div>

@@ -5,20 +5,24 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthStore } from "@/store/authStore";
+import { authApi } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, register, isAuthenticated, user } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [activeTab, setActiveTab] = useState<"login" | "register" | "admin">("login");
   const [loginPhone, setLoginPhone] = useState("");
   const [loginCode, setLoginCode] = useState("");
   const [regName, setRegName] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regSchool, setRegSchool] = useState("");
   const [regCode, setRegCode] = useState("");
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState("");
+  const [adminLoading, setAdminLoading] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -56,6 +60,20 @@ export default function LoginPage() {
     const result = register(regName, regPhone, regSchool, regCode);
     if (!result.success) {
       setError(result.error || "注册失败");
+    }
+  };
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setAdminLoading(true);
+    try {
+      await authApi.login(adminUsername, adminPassword);
+      router.replace("/admin");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "登录失败");
+    } finally {
+      setAdminLoading(false);
     }
   };
 
@@ -113,16 +131,16 @@ export default function LoginPage() {
               borderBottom: "1px solid var(--color-divider)",
             }}
           >
-            {(["login", "register"] as const).map((tab) => (
+            {(["login", "register", "admin"] as const).map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => { setActiveTab(tab); setError(""); }}
                 style={{
                   flex: 1,
                   padding: "var(--space-3) 0",
                   border: "none",
                   background: "none",
-                  fontSize: "var(--text-callout)",
+                  fontSize: tab === "admin" ? "var(--text-caption)" : "var(--text-callout)",
                   fontFamily: "var(--font-text)",
                   fontWeight:
                     activeTab === tab
@@ -140,7 +158,7 @@ export default function LoginPage() {
                     "color var(--duration-fast), border-color var(--duration-fast)",
                 }}
               >
-                {tab === "login" ? "登录" : "注册"}
+                {tab === "login" ? "登录" : tab === "register" ? "注册" : "管理员"}
               </button>
             ))}
           </div>
@@ -229,14 +247,6 @@ export default function LoginPage() {
                   borderRadius: "var(--radius-md)",
                   cursor: "pointer",
                   transition: "background var(--duration-fast)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "var(--color-cta-hover)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "var(--color-cta)";
                 }}
               >
                 登录
@@ -335,41 +345,89 @@ export default function LoginPage() {
                   transition: "background var(--duration-fast)",
                   marginTop: "var(--space-2)",
                 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "var(--color-cta-hover)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "var(--color-cta)";
-                }}
               >
                 注册
               </button>
             </form>
           )}
 
+          {/* Admin Login Form */}
+          {activeTab === "admin" && (
+            <form
+              onSubmit={handleAdminLogin}
+              style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}
+            >
+              <div>
+                <label style={labelStyle}>管理员账号</label>
+                <input
+                  type="text"
+                  placeholder="请输入账号"
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>密码</label>
+                <input
+                  type="password"
+                  placeholder="请输入密码"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  style={inputStyle}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={adminLoading}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  fontSize: "var(--text-body)",
+                  fontFamily: "var(--font-text)",
+                  fontWeight: "var(--weight-semibold)",
+                  color: "#fff",
+                  background: adminLoading ? "var(--color-text-secondary)" : "var(--color-cta)",
+                  border: "none",
+                  borderRadius: "var(--radius-md)",
+                  cursor: adminLoading ? "not-allowed" : "pointer",
+                  transition: "background var(--duration-fast)",
+                }}
+              >
+                {adminLoading ? "登录中..." : "管理员登录"}
+              </button>
+
+              <p style={{ fontSize: "var(--text-caption)", color: "var(--color-text-secondary)", textAlign: "center" }}>
+                默认账号：admin / admin123
+              </p>
+            </form>
+          )}
+
           {/* Terms */}
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: "var(--text-caption)",
-              fontFamily: "var(--font-text)",
-              color: "var(--color-text-secondary)",
-              marginTop: "var(--space-8)",
-            }}
-          >
-            {activeTab === "login" ? "登录" : "注册"}即表示同意
-            <a
-              href="/terms"
+          {activeTab !== "admin" && (
+            <p
               style={{
-                color: "var(--color-text-link)",
-                textDecoration: "none",
+                textAlign: "center",
+                fontSize: "var(--text-caption)",
+                fontFamily: "var(--font-text)",
+                color: "var(--color-text-secondary)",
+                marginTop: "var(--space-8)",
               }}
             >
-              服务条款
-            </a>
-          </p>
+              {activeTab === "login" ? "登录" : "注册"}即表示同意
+              <a
+                href="/terms"
+                style={{
+                  color: "var(--color-text-link)",
+                  textDecoration: "none",
+                }}
+              >
+                服务条款
+              </a>
+            </p>
+          )}
         </div>
       </main>
 

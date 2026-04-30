@@ -52,7 +52,7 @@ export const musicServices: Service[] = [
     tagline: "为您的幼儿园打造专属品牌音乐",
     description: "AI辅助创作，专业音乐人制作，打造独一无二的幼儿园品牌音乐，让每一次播放都传递品牌价值。",
     price: "¥3,980 起",
-    heroImage: "IMG-001", // 主视觉大图/视频
+    heroImage: "/images/services/commercial-music.webp", // 主视觉大图/视频
     features: [
       {
         icon: "clock",
@@ -90,14 +90,14 @@ export const musicServices: Service[] = [
         title: "阳光幼儿园品牌全案升级",
         kindergarten: "成都阳光幼儿园",
         testimonial: "效果超出预期！孩子们特别喜欢新的园歌。",
-        coverImage: "IMG-010",
+        coverImage: "/images/thumbnails/kindergarten-01.webp",
       },
       {
         id: "case-002",
         title: "未来星幼儿园视觉焕新",
         kindergarten: "成都未来星幼儿园",
         testimonial: "专业又高效，3天就出了初稿。",
-        coverImage: "IMG-011",
+        coverImage: "/images/thumbnails/kindergarten-02.webp",
       },
     ],
     relatedServices: [
@@ -130,7 +130,7 @@ export const musicServices: Service[] = [
     tagline: "园歌、主题曲、企业歌，专业编曲录制",
     description: "专业音乐人团队，从作词作曲到编曲录制，一站式音乐制作服务，打造幼儿园专属音乐品牌。",
     price: "¥5,980 起",
-    heroImage: "IMG-002", // 主视觉大图/视频
+    heroImage: "/images/services/music-production.webp", // 主视觉大图/视频
     features: [
       {
         icon: "mic",
@@ -168,7 +168,7 @@ export const musicServices: Service[] = [
         title: "蓝天幼儿园园歌定制",
         kindergarten: "成都蓝天幼儿园",
         testimonial: "园歌朗朗上口，孩子们都会唱了。",
-        coverImage: "IMG-012",
+        coverImage: "/images/thumbnails/kindergarten-03.webp",
       },
     ],
     relatedServices: [
@@ -201,7 +201,7 @@ export const musicServices: Service[] = [
     tagline: "广播、活动、提示音，专业音效定制",
     description: "从广播体操到活动提示音，专业音效设计让幼儿园的每一个声音都成为品牌记忆点。",
     price: "¥1,980 起",
-    heroImage: "IMG-003", // 主视觉大图/视频
+    heroImage: "/images/services/sound-design.webp", // 主视觉大图/视频
     features: [
       {
         icon: "zap",
@@ -239,7 +239,7 @@ export const musicServices: Service[] = [
         title: "彩虹幼儿园音效系统设计",
         kindergarten: "成都彩虹幼儿园",
         testimonial: "广播体操音效孩子们特别喜欢。",
-        coverImage: "IMG-013",
+        coverImage: "/images/thumbnails/kindergarten-04.webp",
       },
     ],
     relatedServices: [

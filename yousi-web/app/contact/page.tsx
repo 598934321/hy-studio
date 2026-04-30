@@ -1,42 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import RevealOnScroll from "@/components/RevealOnScroll";
+import { loadSettings, defaultSettings } from "@/lib/settings";
+import { inquiriesApi } from "@/lib/api";
 
-const contactInfo = [
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-      </svg>
-    ),
-    label: "电话咨询",
-    value: "400-888-8888",
-    description: "工作日 9:00 - 18:00",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-        <polyline points="22,6 12,13 2,6" />
-      </svg>
-    ),
-    label: "邮箱",
-    value: "hello@yousi.design",
-    description: "24小时内回复",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-      </svg>
-    ),
-    label: "微信客服",
-    value: "yousi_kefu",
-    description: "扫码或搜索添加",
-  },
+const phoneIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+);
+const emailIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+const wechatIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+  </svg>
+);
+
+function getContactInfo(settings: typeof defaultSettings) {
+  return [
+    { icon: phoneIcon, label: "电话咨询", value: settings.phone, description: "工作日 9:00 - 18:00" },
+    { icon: emailIcon, label: "邮箱", value: settings.email, description: "24小时内回复" },
+    { icon: wechatIcon, label: "微信客服", value: settings.wechat, description: "扫码或搜索添加" },
   {
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -45,10 +37,11 @@ const contactInfo = [
       </svg>
     ),
     label: "公司地址",
-    value: "成都市高新区天府大道",
+    value: settings.address,
     description: "欢迎预约到访",
   },
-];
+  ];
+}
 
 const serviceOptions = [
   "品牌全案设计",
@@ -63,6 +56,12 @@ const serviceOptions = [
 ];
 
 export default function ContactPage() {
+  const [contactInfo, setContactInfo] = useState(() => getContactInfo(defaultSettings));
+
+  useEffect(() => {
+    loadSettings().then((s) => setContactInfo(getContactInfo(s)));
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     kindergarten: "",
@@ -78,9 +77,28 @@ export default function ContactPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: submit form
+    setSubmitting(true);
+    try {
+      await inquiriesApi.create({
+        name: formData.name,
+        kindergarten: formData.kindergarten,
+        phone: formData.phone,
+        wechat: formData.wechat || undefined,
+        service: formData.service,
+        message: formData.message || undefined,
+      });
+      setSubmitted(true);
+      setFormData({ name: "", kindergarten: "", phone: "", wechat: "", service: "", message: "" });
+    } catch {
+      alert("提交失败，请重试");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const inputStyle: React.CSSProperties = {
@@ -388,28 +406,35 @@ export default function ContactPage() {
                 </div>
 
                 <div style={{ textAlign: "center" }}>
-                  <button
-                    type="submit"
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      height: 48,
-                      padding: "0 48px",
-                      background: "var(--color-cta)",
-                      color: "#FFFFFF",
-                      fontSize: 17,
-                      fontWeight: 500,
-                      fontFamily: "var(--font-text)",
-                      border: "none",
-                      borderRadius: "var(--radius-pill)",
-                      cursor: "pointer",
-                      transition: "background var(--duration-fast)",
-                    }}
-                    className="hover:bg-[var(--color-cta-hover)]"
-                  >
-                    提交咨询
-                  </button>
+                  {submitted ? (
+                    <div style={{ padding: 16, color: "var(--color-success)", fontSize: 17, fontWeight: 500 }}>
+                      提交成功！我们会尽快联系您。
+                    </div>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: 48,
+                        padding: "0 48px",
+                        background: submitting ? "var(--color-text-secondary)" : "var(--color-cta)",
+                        color: "#FFFFFF",
+                        fontSize: 17,
+                        fontWeight: 500,
+                        fontFamily: "var(--font-text)",
+                        border: "none",
+                        borderRadius: "var(--radius-pill)",
+                        cursor: submitting ? "not-allowed" : "pointer",
+                        transition: "background var(--duration-fast)",
+                      }}
+                      className="hover:bg-[var(--color-cta-hover)]"
+                    >
+                      {submitting ? "提交中..." : "提交咨询"}
+                    </button>
+                  )}
                 </div>
               </form>
             </div>

@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model Service {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  category        String
+  name            String
+  tagline         String
+  description     String
+  price           String
+  heroImage       String
+  isActive        Boolean  @default(true)
+  features        Json
+  includes        Json
+  specs           Json
+  relatedCases    Json
+  relatedServices Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([category])
+}
+
+model CaseStudy {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            String
+  category         String
+  kindergarten     String
+  description      String
+  coverImage       String
+  gallery          Json
+  testimonial      String?
+  testimonialAuthor String?
+  services         Json
+  deliveryDays     Int
+  isFeatured       Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([category])
+  @@index([isFeatured])
+}
+
+model Package {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  tagline       String
+  price         Float
+  originalPrice Float?
+  isRecommended Boolean  @default(false)
+  features      Json
+  serviceNames  Json
+  deliveryDays  Int
+  warrantyDays  Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Inquiry {
+  id           String   @id @default(cuid())
+  name         String
+  kindergarten String
+  phone        String
+  wechat       String?
+  service      String
+  message      String?
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+
+  @@index([status])
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  orderNo   String   @unique
+  customer  String
+  phone     String
+  items     Json
+  total     Float
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}

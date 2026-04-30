@@ -1,15 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { casesApi } from "@/lib/api";
 
-const CASES = [
-  { id: 1, title: "阳光幼儿园整园环创", category: "空间设计", kindergarten: "阳光幼儿园", featured: true },
-  { id: 2, title: "蓝天幼儿园品牌升级", category: "品牌设计", kindergarten: "蓝天幼儿园", featured: true },
-  { id: 3, title: "星光幼儿园导视系统", category: "空间设计", kindergarten: "星光幼儿园", featured: false },
-  { id: 4, title: "彩虹幼儿园六一活动", category: "活动设计", kindergarten: "彩虹幼儿园", featured: false },
-  { id: 5, title: "绿叶幼儿园IP设计", category: "品牌设计", kindergarten: "绿叶幼儿园", featured: true },
-  { id: 6, title: "金色童年宣传物料", category: "平面设计", kindergarten: "金色童年幼儿园", featured: false },
-];
+interface CaseStudy {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  kindergarten: string;
+  isFeatured: boolean;
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  brand: "品牌",
+  visual: "视觉",
+  media: "媒体",
+  ip: "IP",
+  tech: "技术",
+};
 
 const thStyle: React.CSSProperties = {
   textAlign: "left",
@@ -28,13 +37,16 @@ const tdStyle: React.CSSProperties = {
 };
 
 export function AdminCases() {
-  const [cases, setCases] = useState(CASES);
+  const [cases, setCases] = useState<CaseStudy[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const toggleFeatured = (id: number) => {
-    setCases((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, featured: !c.featured } : c))
-    );
-  };
+  useEffect(() => {
+    casesApi
+      .list()
+      .then((data) => setCases(data as unknown as CaseStudy[]))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div style={{ padding: 32 }}>
@@ -55,20 +67,6 @@ export function AdminCases() {
         >
           案例管理
         </h1>
-        <button
-          style={{
-            padding: "8px 20px",
-            borderRadius: "var(--radius-sm)",
-            border: "none",
-            background: "var(--color-cta)",
-            color: "#FFFFFF",
-            fontSize: "var(--text-footnote)",
-            fontWeight: "var(--weight-medium)",
-            cursor: "pointer",
-          }}
-        >
-          添加案例
-        </button>
       </div>
 
       <div
@@ -86,70 +84,43 @@ export function AdminCases() {
               <th style={thStyle}>分类</th>
               <th style={thStyle}>幼儿园</th>
               <th style={thStyle}>推荐</th>
-              <th style={thStyle}>操作</th>
             </tr>
           </thead>
           <tbody>
-            {cases.map((c) => (
-              <tr key={c.id}>
-                <td style={{ ...tdStyle, fontWeight: "var(--weight-medium)" }}>
-                  {c.title}
-                </td>
-                <td style={tdStyle}>{c.category}</td>
-                <td style={tdStyle}>{c.kindergarten}</td>
-                <td style={tdStyle}>
-                  <button
-                    onClick={() => toggleFeatured(c.id)}
-                    style={{
-                      padding: "2px 10px",
-                      borderRadius: "var(--radius-pill)",
-                      fontSize: "var(--text-caption)",
-                      fontWeight: "var(--weight-medium)",
-                      border: "none",
-                      cursor: "pointer",
-                      color: c.featured
-                        ? "var(--color-success)"
-                        : "var(--color-text-secondary)",
-                      background: c.featured
-                        ? "color-mix(in srgb, var(--color-success) 12%, transparent)"
-                        : "var(--color-bg-secondary)",
-                    }}
-                  >
-                    {c.featured ? "已推荐" : "未推荐"}
-                  </button>
-                </td>
-                <td style={tdStyle}>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      style={{
-                        padding: "4px 12px",
-                        fontSize: "var(--text-caption)",
-                        borderRadius: "var(--radius-sm)",
-                        border: "1px solid var(--color-border)",
-                        background: "var(--color-bg)",
-                        color: "var(--color-text-primary)",
-                        cursor: "pointer",
-                      }}
-                    >
-                      编辑
-                    </button>
-                    <button
-                      style={{
-                        padding: "4px 12px",
-                        fontSize: "var(--text-caption)",
-                        borderRadius: "var(--radius-sm)",
-                        border: "1px solid var(--color-border)",
-                        background: "var(--color-bg)",
-                        color: "var(--color-error)",
-                        cursor: "pointer",
-                      }}
-                    >
-                      删除
-                    </button>
-                  </div>
+            {loading ? (
+              <tr>
+                <td colSpan={4} style={{ ...tdStyle, textAlign: "center", padding: 32 }}>
+                  加载中...
                 </td>
               </tr>
-            ))}
+            ) : (
+              cases.map((c) => (
+                <tr key={c.id}>
+                  <td style={{ ...tdStyle, fontWeight: "var(--weight-medium)" }}>
+                    {c.title}
+                  </td>
+                  <td style={tdStyle}>{CATEGORY_LABELS[c.category] || c.category}</td>
+                  <td style={tdStyle}>{c.kindergarten}</td>
+                  <td style={tdStyle}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "2px 10px",
+                        borderRadius: "var(--radius-pill)",
+                        fontSize: "var(--text-caption)",
+                        fontWeight: "var(--weight-medium)",
+                        color: c.isFeatured ? "var(--color-success)" : "var(--color-text-secondary)",
+                        background: c.isFeatured
+                          ? "color-mix(in srgb, var(--color-success) 12%, transparent)"
+                          : "var(--color-bg-secondary)",
+                      }}
+                    >
+                      {c.isFeatured ? "已推荐" : "未推荐"}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
