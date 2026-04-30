@@ -299,6 +299,14 @@ function HeaderInner() {
 
   const currentItem = navItems.find((item) => item.name === activeNav);
   const hasPanel = activePanel !== null;
+  const mobilePanelOpen = isMobile && (hasPanel || mobileMenuOpen);
+
+  const closeAll = () => {
+    setActivePanel(null);
+    setActiveNav(null);
+    setMobileMenuOpen(false);
+    setMobileActiveNav(null);
+  };
 
   return (
     <>
@@ -339,11 +347,11 @@ function HeaderInner() {
             padding: "0 var(--space-6)",
           }}
         >
-          {/* Logo */}
+          {/* Logo — hidden on mobile when any panel is open */}
           <Link
             href="/"
             style={{
-              display: "flex",
+              display: mobilePanelOpen ? "none" : "flex",
               alignItems: "center",
               gap: 8,
               textDecoration: "none",
@@ -371,44 +379,45 @@ function HeaderInner() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 32,
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
-              height: "100%",
-            }}
-            className="hidden md:flex"
-          >
-            {navItems.map((item) => (
-              <div
-                key={item.name}
-                style={{ height: "100%", display: "flex", alignItems: "center" }}
-                onMouseEnter={() => handleNavEnter(item.name)}
-              >
-                <Link
-                  href={item.href}
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 400,
-                    color: "var(--color-text-primary)",
-                    opacity: activeNav === item.name ? 1 : 0.8,
-                    textDecoration: "none",
-                    transition: "opacity 0.4s ease",
-                    cursor: "pointer",
-                  }}
-                  className="hover:opacity-100"
+          {/* Desktop Navigation — completely hidden on mobile */}
+          {!isMobile && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 32,
+                position: "absolute",
+                left: "50%",
+                transform: "translateX(-50%)",
+                height: "100%",
+              }}
+            >
+              {navItems.map((item) => (
+                <div
+                  key={item.name}
+                  style={{ height: "100%", display: "flex", alignItems: "center" }}
+                  onMouseEnter={() => handleNavEnter(item.name)}
                 >
-                  {item.name}
-                </Link>
-              </div>
-            ))}
-          </div>
+                  <Link
+                    href={item.href}
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 400,
+                      color: "var(--color-text-primary)",
+                      opacity: activeNav === item.name ? 1 : 0.8,
+                      textDecoration: "none",
+                      transition: "opacity 0.4s ease",
+                      cursor: "pointer",
+                    }}
+                    className="hover:opacity-100"
+                  >
+                    {item.name}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Right side icons */}
           <div
@@ -418,8 +427,10 @@ function HeaderInner() {
               gap: 16,
               justifyContent: "flex-end",
               flexShrink: 0,
+              marginLeft: "auto",
             }}
           >
+            {/* Search button — hidden on mobile when panel is open */}
             <button
               onClick={() => togglePanel("search")}
               style={{
@@ -430,6 +441,7 @@ function HeaderInner() {
                 color: "var(--color-text-primary)",
                 opacity: activePanel === "search" ? 1 : 0.8,
                 transition: "opacity 0.4s ease",
+                display: mobilePanelOpen ? "none" : "block",
               }}
               className="hover:opacity-100"
               aria-label="搜索"
@@ -440,6 +452,7 @@ function HeaderInner() {
               </svg>
             </button>
 
+            {/* Bag button — hidden on mobile when panel is open */}
             <button
               onClick={() => togglePanel("bag")}
               style={{
@@ -451,6 +464,7 @@ function HeaderInner() {
                 color: "var(--color-text-primary)",
                 opacity: activePanel === "bag" ? 1 : 0.8,
                 transition: "opacity 0.4s ease",
+                display: mobilePanelOpen ? "none" : "block",
               }}
               className="hover:opacity-100"
               aria-label="购物袋"
@@ -463,6 +477,7 @@ function HeaderInner() {
               </svg>
             </button>
 
+            {/* Menu / Close button — always visible on mobile */}
             <button
               style={{
                 background: "none",
@@ -472,11 +487,17 @@ function HeaderInner() {
                 color: "var(--color-text-primary)",
               }}
               className="md:hidden"
-              onClick={() => { setMobileMenuOpen(!mobileMenuOpen); if (mobileMenuOpen) setMobileActiveNav(null); }}
-              aria-label="菜单"
+              onClick={() => {
+                if (mobilePanelOpen) {
+                  closeAll();
+                } else {
+                  setMobileMenuOpen(true);
+                }
+              }}
+              aria-label={mobilePanelOpen ? "关闭" : "菜单"}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                {mobileMenuOpen ? (
+                {mobilePanelOpen ? (
                   <path d="M18 6 6 18M6 6l12 12" />
                 ) : (
                   <>
@@ -938,10 +959,7 @@ function HeaderInner() {
           visibility: hasPanel ? "visible" : "hidden",
           transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
-        onClick={() => {
-          setActivePanel(null);
-          setActiveNav(null);
-        }}
+        onClick={closeAll}
       />
 
       {/* Mobile Menu */}
@@ -957,6 +975,8 @@ function HeaderInner() {
             zIndex: 9997,
             overflowY: "auto",
             padding: "24px var(--space-6)",
+            opacity: 0,
+            animation: "mobileMenuIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards",
           }}
           className="md:hidden"
         >
@@ -1098,6 +1118,16 @@ function HeaderInner() {
           from {
             opacity: 0;
             transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes mobileMenuIn {
+          from {
+            opacity: 0;
+            transform: translateY(-8px);
           }
           to {
             opacity: 1;
