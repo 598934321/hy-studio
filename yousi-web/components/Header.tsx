@@ -239,6 +239,7 @@ function HeaderInner() {
   const [activePanel, setActivePanel] = useState<PanelType>(null);
   const [activeNav, setActiveNav] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [mobileActiveNav, setMobileActiveNav] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const leaveTimeoutRef = useRef<NodeJS.Timeout>(null);
@@ -258,6 +259,16 @@ function HeaderInner() {
     }, 300);
     return () => clearTimeout(timer);
   }, []);
+
+  // Delayed unmount for mobile menu exit animation
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      setMobileMenuVisible(true);
+    } else {
+      const timer = setTimeout(() => setMobileMenuVisible(false), 350);
+      return () => clearTimeout(timer);
+    }
+  }, [mobileMenuOpen]);
 
   const handleNavEnter = (name: string) => {
     if (suppressRef.current) return;
@@ -497,15 +508,31 @@ function HeaderInner() {
               aria-label={mobilePanelOpen ? "关闭" : "菜单"}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                {mobilePanelOpen ? (
-                  <path d="M18 6 6 18M6 6l12 12" />
-                ) : (
-                  <>
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
-                  </>
-                )}
+                <line
+                  x1="3" y1="6" x2="21" y2="6"
+                  className="hamburger-top"
+                  style={{
+                    transformOrigin: "center",
+                    transition: "transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+                    transform: mobilePanelOpen ? "translateY(6px) rotate(45deg)" : "none",
+                  }}
+                />
+                <line
+                  x1="3" y1="12" x2="21" y2="12"
+                  style={{
+                    transition: "opacity 0.25s ease",
+                    opacity: mobilePanelOpen ? 0 : 1,
+                  }}
+                />
+                <line
+                  x1="3" y1="18" x2="21" y2="18"
+                  className="hamburger-bottom"
+                  style={{
+                    transformOrigin: "center",
+                    transition: "transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+                    transform: mobilePanelOpen ? "translateY(-6px) rotate(-45deg)" : "none",
+                  }}
+                />
               </svg>
             </button>
           </div>
@@ -963,7 +990,7 @@ function HeaderInner() {
       />
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
+      {mobileMenuVisible && (
         <div
           style={{
             position: "fixed",
@@ -975,8 +1002,10 @@ function HeaderInner() {
             zIndex: 9997,
             overflowY: "auto",
             padding: "24px var(--space-6)",
-            opacity: 0,
-            animation: "mobileMenuIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+            opacity: mobileMenuOpen ? 1 : 0,
+            transform: mobileMenuOpen ? "translateY(0)" : "translateY(-8px)",
+            transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            pointerEvents: mobileMenuOpen ? "auto" : "none",
           }}
           className="md:hidden"
         >
@@ -1118,16 +1147,6 @@ function HeaderInner() {
           from {
             opacity: 0;
             transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes mobileMenuIn {
-          from {
-            opacity: 0;
-            transform: translateY(-8px);
           }
           to {
             opacity: 1;
