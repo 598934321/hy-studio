@@ -23,10 +23,12 @@ export async function POST(req: NextRequest) {
     const token = signToken({ adminId: admin.id, username: admin.username });
 
     const res = NextResponse.json({ success: true, username: admin.username });
-    const isSecure = req.headers.get("x-forwarded-proto") === "https" || req.nextUrl.protocol === "https:";
+    const cookieSecure = process.env.COOKIE_SECURE !== undefined
+      ? process.env.COOKIE_SECURE === "true"
+      : process.env.NODE_ENV === "production";
     res.cookies.set("admin_token", token, {
       httpOnly: true,
-      secure: isSecure,
+      secure: cookieSecure,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
